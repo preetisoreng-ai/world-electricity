@@ -1,0 +1,12 @@
+/* Project brand for the shared top bar: Data primary tokens instead of the UPI blue (topbar.css is shared and left unedited). */
+.topbar { --tb-brand: var(--data-primary-600, #7745ad); }
+.topbar-dark,
+html.dark .topbar { --tb-brand: var(--data-primary-500, #9363c7); }
+.topbar-dark nav .version-menu-panel a:hover,
+html.dark .topbar nav .version-menu-panel a:hover { color: var(--data-primary-300, #d3affa); }
+/* Original/Tested hide their section links on narrow screens; the page dropdown must stay */
+@media (max-width: 900px) {
+  .topbar nav { display: flex !important; }
+  .topbar nav > a { display: none; }
+  .version-menu { margin-left: 0; }
+}

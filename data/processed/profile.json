@@ -1,0 +1,69 @@
+{
+  "file": "ember_yearly_electricity-generation - All electricity sources - World - breakdown.csv",
+  "sha256": "b8134b1c34fff0c4a5a1618854f4bbdb1cac261a86d4a89a171761c6c4fe8b70",
+  "rows": 260,
+  "columns": 13,
+  "column_names": [
+    "entity",
+    "entity_code",
+    "is_aggregate_entity",
+    "date",
+    "series",
+    "is_aggregate_series",
+    "generation_twh",
+    "generation_share_pct",
+    "generation_kwh_per_capita",
+    "generation_yoy_change_twh",
+    "generation_yoy_change_pct",
+    "generation_share_yoy_change_pct_points",
+    "generation_yoy_change_kwh_per_capita"
+  ],
+  "entities": [
+    "World"
+  ],
+  "years": [
+    2000,
+    2025
+  ],
+  "year_count": 26,
+  "series": [
+    "Bioenergy",
+    "Coal",
+    "Gas",
+    "Hydro",
+    "Nuclear",
+    "Other fossil",
+    "Other renewables",
+    "Solar",
+    "Total generation",
+    "Wind"
+  ],
+  "duplicate_keys": 0,
+  "missing_by_column": {
+    "entity": 0,
+    "entity_code": 260,
+    "is_aggregate_entity": 0,
+    "date": 0,
+    "series": 0,
+    "is_aggregate_series": 0,
+    "generation_twh": 0,
+    "generation_share_pct": 0,
+    "generation_kwh_per_capita": 0,
+    "generation_yoy_change_twh": 10,
+    "generation_yoy_change_pct": 10,
+    "generation_share_yoy_change_pct_points": 10,
+    "generation_yoy_change_kwh_per_capita": 10
+  },
+  "source_sum_minus_total_twh": {
+    "max_abs": 0.02
+  },
+  "share_sum_minus_100_pct": {
+    "max_abs": 0.02
+  },
+  "yoy_recompute_max_abs_diff_twh": 0.01,
+  "negative_values": [],
+  "implied_population_million": {
+    "2000": 6172,
+    "2025": 8231
+  }
+}

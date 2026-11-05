@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en" class="theme-data radius-round-2">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Dashboard of world electricity generation by source, 2000–2025, from Ember: shares, TWh and per-person values with year comparisons."
+    />
+    <title>World Power Dashboard</title>
+    <script>
+      try {
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+          document.documentElement.classList.add("motion");
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="../shared/data.css" />
+    <link rel="stylesheet" href="../shared/motion.css" />
+    <link rel="stylesheet" href="assets/dashboard.css" />
+    <script src="assets/dashboard-data.js" defer></script>
+    <script src="../shared/motion.js" defer></script>
+    <script src="assets/dashboard.js" defer></script>
+      <link rel="stylesheet" href="../shared/topbar.css" />
+    <link rel="stylesheet" href="../shared/topbar-brand.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to dashboard</a>
+    <header class="topbar">
+      <a class="wordmark" href="../data-story/index.html" aria-label="World electricity story home"
+        ><span class="mark" aria-hidden="true">⚡</span> World electricity</a
+      >
+      <nav aria-label="World electricity pages">
+        <details class="version-menu">
+          <summary><span>Dashboard</span><svg class="version-menu-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M26.7 12.7 16.7 22.7a1 1 0 0 1-1.4 0l-10-10a1 1 0 0 1 1.4-1.4l9.3 9.3 9.3-9.3a1 1 0 0 1 1.4 1.4Z" /></svg></summary>
+          <div class="version-menu-panel">
+            <a href="../data-story/index.html">Data story</a>
+            <a href="../original/index.html">Original</a>
+            <a href="../tested/index.html">Pressure tested</a>
+            <a class="active" aria-current="page" href="../dashboard/index.html">Dashboard</a>
+          </div>
+        </details>
+      </nav>
+    </header>
+
+    <main id="main" class="shell">
+      <div class="page-head">
+        <div>
+          <h1>World electricity mix</h1>
+          <p>
+            How the world’s power sources have shifted: compare any year with an earlier one, in
+            shares, TWh or kWh per person.
+          </p>
+        </div>
+        <div class="asof">
+          Data<br /><strong>2000–2025</strong><br /><span>Ember · World · yearly</span>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Dashboard views">
+        <button role="tab" aria-selected="true" aria-controls="overview" id="tab-overview">
+          Overview
+        </button>
+        <button role="tab" aria-selected="false" aria-controls="table" id="tab-table" tabindex="-1">
+          Data table
+        </button>
+        <button role="tab" aria-selected="false" aria-controls="defs" id="tab-defs" tabindex="-1">
+          Definitions
+        </button>
+      </div>
+
+      <section class="filters" aria-label="Dashboard filters">
+        <label class="dd"
+          ><span>Year</span
+          ><select id="yearSel"></select
+        ></label>
+        <label class="dd"
+          ><span>Compare with</span
+          ><select id="baseSel"></select
+        ></label>
+        <label class="dd"
+          ><span>Measure</span>
+          <select id="measureSel">
+            <option value="share">Share of generation (%)</option>
+            <option value="twh">Generation (TWh)</option>
+            <option value="kwh">Per person (kWh)</option>
+          </select>
+        </label>
+        <button id="reset" type="button" class="btn-border">Reset</button>
+        <span id="filterState" class="filter-state" aria-live="polite"></span>
+      </section>
+
+      <div id="loadError" class="notice error" role="alert" hidden>
+        <strong>Data didn’t load.</strong>
+        <span
+          >assets/dashboard-data.js is missing. Re-run
+          <code>python -I workflow/analysis/build_dashboard_data.py</code>.</span
+        >
+      </div>
+
+      <section id="overview" role="tabpanel" aria-labelledby="tab-overview">
+        <div class="kpis" aria-busy="true">
+          <article class="kpi">
+            <span class="kpi-label"
+              >Renewables
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Hydro + wind + solar + bioenergy + other renewables, in the selected measure."
+              >
+                i
+              </button></span
+            >
+            <strong id="kRenew">Loading…</strong><span id="dRenew" class="delta"></span
+            ><small id="sRenew">&nbsp;</small>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label"
+              >Coal
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Coal generation in the selected measure."
+              >
+                i
+              </button></span
+            >
+            <strong id="kCoal">—</strong><span id="dCoal" class="delta"></span
+            ><small id="sCoal">&nbsp;</small>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label"
+              >Clean
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Renewables + nuclear (Ember’s low-carbon grouping)."
+              >
+                i
+              </button></span
+            >
+            <strong id="kClean">—</strong><span id="dClean" class="delta"></span
+            ><small id="sClean">&nbsp;</small>
+          </article>
+          <article class="kpi">
+            <span class="kpi-label"
+              >Fossil
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Coal + gas + other fossil. Not an emissions measure."
+              >
+                i
+              </button></span
+            >
+            <strong id="kFossil">—</strong><span id="dFossil" class="delta"></span
+            ><small id="sFossil">&nbsp;</small>
+          </article>
+        </div>
+
+        <div class="grid">
+          <article class="card wide">
+            <div class="card-head">
+              <div>
+                <h2 id="trendTitle">Trend</h2>
+                <p id="trendSub">2000–2025</p>
+              </div>
+              <div
+                class="view-tabs"
+                id="viewTabs"
+                role="group"
+                aria-label="Series to compare"
+              ></div>
+            </div>
+            <div class="chart-wrap scroll">
+              <svg
+                id="trendChart"
+                class="chart"
+                viewBox="0 0 900 340"
+                role="img"
+                aria-labelledby="trendDesc"
+              >
+                <desc id="trendDesc">Line chart of the selected series over time.</desc>
+              </svg>
+              <div class="tooltip" id="tip" hidden></div>
+            </div>
+            <p class="legend" id="trendLegend"></p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2 id="changeTitle">Change by source</h2>
+                <p id="changeSub">TWh</p>
+              </div>
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Selected year minus comparison year, for each of the nine sources. In share mode, changes are percentage points and add up to zero."
+              >
+                i
+              </button>
+            </div>
+            <svg
+              id="changeChart"
+              class="chart"
+              viewBox="0 0 520 330"
+              role="img"
+              aria-labelledby="changeDesc"
+            >
+              <desc id="changeDesc">Bars of change by source between the two selected years.</desc>
+            </svg>
+            <p class="legend">
+              <span><span class="key s1"></span>Rose</span
+              ><span><span class="key s2"></span>Fell</span>
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h2 id="mixTitle">Mix</h2>
+                <p>
+                  Share of world generation · hollow dot = comparison year, filled = selected year
+                </p>
+              </div>
+              <button
+                class="info"
+                type="button"
+                aria-label="Definition"
+                data-tip="Shares of the nine sources always add up to 100%."
+              >
+                i
+              </button>
+            </div>
+            <div id="mixRows" class="dumbbells" role="list"></div>
+            <p class="legend">
+              <span><span class="key s1"></span>Share rose</span
+              ><span><span class="key s2"></span>Share fell</span>
+            </p>
+          </article>
+        </div>
+
+        <div class="notice" id="notice">
+          <strong>Comparability</strong>
+          <span id="noticeText"
+            >World totals only. Renewables include hydro, which swings with rainfall. The latest
+            year may be revised.</span
+          >
+        </div>
+      </section>
+
+      <section id="table" role="tabpanel" aria-labelledby="tab-table" hidden>
+        <div class="table-toolbar">
+          <p class="row-count" id="tableNote" style="margin: 0"></p>
+          <div class="downloads">
+            <button id="dlTable" type="button" class="btn-border">Download this table (CSV)</button>
+            <a href="../../data/processed/generation_long.csv" download class="btn-link"
+              >Full processed CSV</a
+            >
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="dataTable">
+            <caption class="sr-only">
+              World generation by source and year in the selected measure
+            </caption>
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="defs" role="tabpanel" aria-labelledby="tab-defs" hidden>
+        <div class="table-wrap">
+          <table class="data-table defs">
+            <caption class="sr-only">
+              Measure definitions
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Measure</th>
+                <th scope="col">Formula</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Caveat</th>
+              </tr>
+            </thead>
+            <tbody id="defRows"></tbody>
+          </table>
+        </div>
+        <p class="row-count">
+          Source: Ember, yearly electricity generation, World, all sources, 2000–2025. No licence or
+          metadata came with the file.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <div class="shell">Dashboard · measures validated in the Tested stage · Data: Ember</div>
+    </footer>
+  </body>
+</html>

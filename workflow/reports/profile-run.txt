@@ -1,0 +1,131 @@
+{
+ "file": "ember_yearly_electricity-generation - All electricity sources - World - breakdown.csv",
+ "sha256": "b8134b1c34fff0c4a5a1618854f4bbdb1cac261a86d4a89a171761c6c4fe8b70",
+ "rows": 260,
+ "columns": 13,
+ "entities": [
+  "World"
+ ],
+ "years": [
+  2000,
+  2025
+ ],
+ "year_count": 26,
+ "series": [
+  "Bioenergy",
+  "Coal",
+  "Gas",
+  "Hydro",
+  "Nuclear",
+  "Other fossil",
+  "Other renewables",
+  "Solar",
+  "Total generation",
+  "Wind"
+ ],
+ "duplicate_keys": 0,
+ "missing_by_column": {
+  "entity": 0,
+  "entity_code": 260,
+  "is_aggregate_entity": 0,
+  "date": 0,
+  "series": 0,
+  "is_aggregate_series": 0,
+  "generation_twh": 0,
+  "generation_share_pct": 0,
+  "generation_kwh_per_capita": 0,
+  "generation_yoy_change_twh": 10,
+  "generation_yoy_change_pct": 10,
+  "generation_share_yoy_change_pct_points": 10,
+  "generation_yoy_change_kwh_per_capita": 10
+ },
+ "source_sum_minus_total_twh": {
+  "max_abs": 0.02
+ },
+ "share_sum_minus_100_pct": {
+  "max_abs": 0.02
+ },
+ "yoy_recompute_max_abs_diff_twh": 0.01,
+ "negative_values": [],
+ "implied_population_million": {
+  "2000": 6172,
+  "2025": 8231
+ }
+}
+{
+ "first": 2000,
+ "last": 2025,
+ "latest": {
+  "total": 31925.36,
+  "dTotal": 854.619999999999,
+  "dClean": 878.5700000000015,
+  "dFossil": -23.970000000001164,
+  "dSolar": 646.0,
+  "dWind": 198.54999999999973,
+  "dCoal": -44.86000000000058,
+  "renewShare": 0.33522785647522846,
+  "coalShare": 0.33226187582536265,
+  "cleanShare": 0.4230899823839105,
+  "fossilShare": 0.5769097043854791,
+  "solar": 2806.64,
+  "wind": 2704.87,
+  "solarShareOfGrowth": 0.7558915073365949,
+  "cleanShareOfGrowth": 1.0280241510846957,
+  "renewMinusCoalPts": 0.2965980649865807,
+  "solarMinusWindTwh": 101.76999999999998
+ },
+ "base": {
+  "coalShare": 0.3811408339684495,
+  "renewShare": 0.18710849002432584,
+  "solar": 1.08,
+  "total": 15325.28,
+  "fossilShare": 0.6471209661422173
+ },
+ "growth": {
+  "totalX": 2.0831828194982407,
+  "solarX": 2598.7407407407404,
+  "solar2015": 256.07,
+  "solarX2015": 10.960440504549537
+ },
+ "renewOverCoalYears": [
+  2025
+ ],
+ "solarOverWindYears": [
+  2025
+ ],
+ "fossilFalls": [
+  {
+   "year": 2009,
+   "dFossil": -202.96999999999935,
+   "dTotal": -159.1800000000003
+  },
+  {
+   "year": 2015,
+   "dFossil": -6.550000000001091,
+   "dTotal": 259.0
+  },
+  {
+   "year": 2019,
+   "dFossil": -51.04000000000087,
+   "dTotal": 394.7199999999975
+  },
+  {
+   "year": 2020,
+   "dFossil": -464.1399999999994,
+   "dTotal": -99.04999999999927
+  },
+  {
+   "year": 2025,
+   "dFossil": -23.970000000001164,
+   "dTotal": 854.619999999999
+  }
+ ],
+ "cleanCoversGrowthYears": [
+  2015,
+  2019,
+  2025
+ ],
+ "peakCoalShare": 2007,
+ "peakCoalShareValue": 0.40922308584240746,
+ "peakCoalTwhYear": 2024
+}

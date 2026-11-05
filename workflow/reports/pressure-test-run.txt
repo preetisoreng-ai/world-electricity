@@ -1,0 +1,5 @@
+margin 94.7 TWh  kFlip 0.4443%  dryFlips [2001]  hydro2025 -0.35%  sd 2.49%
+defs {'renewShare': 0.3352, 'coalShare': 0.3323, 'hydroShare': 0.1393, 'nonHydroRenewShare': 0.1959, 'windSolarShare': 0.1726, 'cleanShare': 0.4231, 'fossilShare': 0.5769, 'gasShare': 0.2168} nonHydroCross []
+precedents [{'year': 2015, 'dDemand': 259.0, 'dFossil': -6.550000000001091, 'dCoal': -323.1700000000001, 'nextFossil': 287.8899999999994, 'nextCoal': 43.55999999999949}, {'year': 2019, 'dDemand': 394.7199999999975, 'dFossil': -51.04000000000087, 'dCoal': -209.78000000000065, 'nextFossil': -464.1399999999994, 'nextCoal': -381.65999999999985}, {'year': 2025, 'dDemand': 854.619999999999, 'dFossil': -23.970000000001164, 'dCoal': -44.86000000000058, 'nextFossil': None, 'nextCoal': None}]
+pace {'renew0015': 0.282, 'renew1525': 1.059, 'coal0015': 0.045, 'coal1525': -0.557} cleanMargin 24.0 fossilPct -0.130%
+status {'verified': 6, 'qualified': 2, 'revised': 1, 'rejected': 2}

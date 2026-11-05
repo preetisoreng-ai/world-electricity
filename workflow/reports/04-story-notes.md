@@ -1,0 +1,22 @@
+# Data story: notes
+
+**Takeaway (one sentence):** In 2025 clean power grew faster than the world's demand for electricity, mostly through solar, and renewables (led by hydro) edged past coal for the first time, by a margin small enough to reverse.
+
+**Arc:** change over time with an uncertainty turn: context → what met new demand → the crossover → what "renewables" is made of → how thin the lead is → implication and limit.
+
+Precedence: narrative from the approved Original (headline crossover, clean growth vs demand, solar); guardrails from the approved Tested stage (crossover qualified: 95 TWh, 0.44%, hydro-dependent, dry-year 2001; fossil fall qualified; "coal peaked" revised; "replacing fossil" and "wind+solar beat coal" rejected); definitions from the approved Dashboard catalog (renewables, clean, fossil groupings; latest year may be revised).
+
+| # | Scene | Question | Visual (template form) | Claims | Guardrail applied |
+|---|---|---|---|---|---|
+| 1 | The power shift | How much electricity does the world make? | Radial, one spoke per year (linear length) | C8 | — |
+| 2 | 76% from solar | What met 2025's new demand? | 100-dot unit grid (76 solar / 24 other clean) | C2, C5 | "Fossil dipped slightly", not "fell" |
+| 3 | 33.5% vs 33.2% | Did renewables pass coal? | Two share lines drawing to the crossover (new form, template palette) | C1 | "Just ahead"; peak context |
+| 4 | Hydro carries it | What is inside "renewables"? | Bars: renewables, coal, renewables without hydro (TWh) | C1 qualification, T2 | Wind + solar 17.3% stated |
+| 5 | 0.44% | How solid is the lead? | Mini line of renewables − coal gap + gradient number panel | C1 robustness | Revision and dry-year (2001) caveats inline |
+| 6 | 11× solar | So what? | Radial of solar per year | C9, C3, C7 | "One year is not yet a trend"; 2015/2019 precedents |
+
+Not used: per-person figures, gas and nuclear detail, mix dumbbells (dashboard covers them).
+
+Template adaptations: hero and closing radials use linear spoke length (the template's square-root scaling hid the 2× growth); scene 3 adds a line form in the template's lavender/lime palette, since the crossover is a change over time.
+
+Reproduce: `python -I workflow/analysis/build_story_data.py` → `site/data-story/assets/story-data.js`.

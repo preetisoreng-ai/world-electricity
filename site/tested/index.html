@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en" class="theme-data radius-round-2">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Pressure test of the 2025 world electricity findings: renewables did edge past coal, but by a margin a small revision or a dry year could undo, and the lead depends on hydro."
+    />
+    <title>Electricity Findings Tested</title>
+    <script>
+      try {
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+          document.documentElement.classList.add("motion");
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="../shared/data.css" />
+    <link rel="stylesheet" href="../shared/motion.css" />
+    <link rel="stylesheet" href="assets/base.css" />
+    <link rel="stylesheet" href="assets/tested.css" />
+    <script src="assets/tested-data.js" defer></script>
+    <script src="../shared/motion.js" defer></script>
+    <script src="assets/tested.js" defer></script>
+      <link rel="stylesheet" href="../shared/topbar.css" />
+    <link rel="stylesheet" href="../shared/topbar-brand.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <a class="wordmark" href="../data-story/index.html" aria-label="World electricity story home"
+        ><span class="mark" aria-hidden="true">⚡</span> World electricity</a
+      >
+      <nav aria-label="World electricity pages">
+        <a href="#changes">Changes</a>
+        <a href="#margin">Margin</a>
+        <a href="#hydro">Hydro</a>
+        <a href="#precedent">Precedent</a>
+        <a href="#checks">Checks</a>
+        <details class="version-menu">
+          <summary><span>Pressure tested</span><svg class="version-menu-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M26.7 12.7 16.7 22.7a1 1 0 0 1-1.4 0l-10-10a1 1 0 0 1 1.4-1.4l9.3 9.3 9.3-9.3a1 1 0 0 1 1.4 1.4Z" /></svg></summary>
+          <div class="version-menu-panel">
+            <a href="../data-story/index.html">Data story</a>
+            <a href="../original/index.html">Original</a>
+            <a class="active" aria-current="page" href="../tested/index.html">Pressure tested</a>
+            <a href="../dashboard/index.html">Dashboard</a>
+          </div>
+        </details>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <h1>The crossover is real, but it’s thin and it rests on hydro.</h1>
+        <p class="dek">
+          We tried to break the original findings. Renewables did generate more than coal in 2025,
+          and clean sources did grow faster than demand. But the lead over coal is only
+          <strong data-bind="margin">95 TWh</strong>: a <strong data-bind="kFlip">0.44%</strong>
+          revision, or a dry year for hydropower, would undo it. And fossil generation has fallen in
+          a growing year twice before, then rebounded.
+        </p>
+        <aside class="hero-note" aria-label="Verdict summary">
+          <div>
+            <span class="note-label">Claims checked</span>
+            <p id="verdictSummary">6 verified · 2 qualified · 1 revised · 2 rejected</p>
+          </div>
+          <div>
+            <span class="note-label">Independent recompute</span>
+            <p>
+              <span data-bind="recompute">14 of 14</span> headline values match in a separate
+              Node.js script with its own CSV reader.
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="stat-band" aria-label="Revised key figures">
+        <div class="wrap stats">
+          <article>
+            <strong data-bind="margin">95 TWh</strong
+            ><span>renewables’ lead over coal in 2025</span>
+          </article>
+          <article>
+            <strong data-bind="kFlip">0.44%</strong
+            ><span>opposite revision that would erase it</span>
+          </article>
+          <article>
+            <strong data-bind="nonHydro">19.6%</strong
+            ><span>renewables without hydro, against coal’s 33.2%</span>
+          </article>
+          <article>
+            <strong data-bind="fossilPct">−0.13%</strong
+            ><span>change in fossil generation, 2025</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section wrap" id="changes" aria-labelledby="changes-title">
+        <div class="section-copy">
+          <h2 id="changes-title">The headline stays, with softer wording.</h2>
+          <p>
+            Each row shows what the Original page said, how it fared, and the wording the dashboard
+            and story will use. The two “tempting” rows are claims a reader might draw that the data
+            can’t support.
+          </p>
+        </div>
+        <div class="checks-scroll">
+          <table class="checks-table revisions">
+            <caption class="sr-only">
+              Original claims and their tested status
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Original said</th>
+                <th scope="col">Status</th>
+                <th scope="col">What the test found</th>
+                <th scope="col">Wording from now on</th>
+              </tr>
+            </thead>
+            <tbody id="claimRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section tint" id="margin" aria-labelledby="margin-title">
+        <div class="wrap">
+          <div class="section-copy">
+            <h2 id="margin-title">How big a revision would undo the crossover?</h2>
+            <p>
+              Ember’s latest year is often revised. Slide to lower the 2025 renewables figure and
+              raise coal by the same percentage. The lead disappears at
+              <strong data-bind="kFlip">0.44%</strong>.
+            </p>
+          </div>
+          <div class="chart-card slider-card">
+            <label for="kSlider" class="slider-label">
+              Renewables down and coal up by <output id="kOut" for="kSlider">0.0%</output>
+            </label>
+            <input
+              id="kSlider"
+              type="range"
+              min="0"
+              max="20"
+              step="1"
+              value="0"
+              aria-describedby="kRead"
+            />
+            <div class="pair-bars" aria-hidden="true">
+              <div class="pb renew">
+                <span>Renewables</span><i id="pbRenew"></i><b id="pbRenewV">10,702</b>
+              </div>
+              <div class="pb coal">
+                <span>Coal</span><i id="pbCoal"></i><b id="pbCoalV">10,608</b>
+              </div>
+            </div>
+            <p id="kRead" class="k-read" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section wrap" id="hydro" aria-labelledby="hydro-title">
+        <div class="section-copy">
+          <h2 id="hydro-title">Take out hydro and renewables are far behind coal.</h2>
+          <p>
+            Hydropower is <strong data-bind="hydroShare">13.9%</strong> of world electricity and
+            swings with rainfall. Wind, solar and the rest add up to
+            <strong data-bind="nonHydro">19.6%</strong>, well below coal. That group has never been
+            above coal in any year of the data.
+          </p>
+          <p>
+            We replayed 2025 with each year’s actual hydro swing from 2001 to 2025. With a year like
+            <strong data-bind="dryFlips">2001</strong> (hydro −2.5%), renewables would not have
+            passed coal. In 2025 hydro was <span data-bind="hydro2025">−0.3%</span>, close to
+            normal.
+          </p>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>2025 shares: what “renewables” is made of</h3>
+                <p class="chart-sub">% of world generation, 2025</p>
+              </div>
+            </div>
+            <svg
+              id="stackChart"
+              class="chart"
+              viewBox="0 0 520 220"
+              role="img"
+              aria-labelledby="stackDesc"
+            >
+              <desc id="stackDesc">
+                Two bars. Renewables 33.5%, made of hydro 13.9% and other renewables 19.6%. Coal
+                33.2%.
+              </desc>
+            </svg>
+            <p class="legend">
+              <span><span class="key renew"></span>Hydro</span>
+              <span><span class="key renew-light"></span>Wind, solar and other renewables</span>
+              <span><span class="key compare"></span>Coal</span>
+            </p>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>Renewables’ lead over coal under past hydro years</h3>
+                <p class="chart-sub">
+                  2025 replayed with each year’s hydro change, TWh · outlined = actual 2025
+                </p>
+              </div>
+            </div>
+            <div class="chart-wrap scroll">
+              <svg
+                id="dryChart"
+                class="chart"
+                viewBox="0 0 520 260"
+                role="img"
+                aria-labelledby="dryDesc"
+              >
+                <desc id="dryDesc">
+                  Bars for 25 hydro scenarios. All are above zero except the 2001 scenario, where
+                  coal would stay ahead.
+                </desc>
+              </svg>
+              <div class="tooltip" id="dryTip" role="status" aria-live="polite" hidden></div>
+            </div>
+            <p class="legend">
+              <span><span class="key renew"></span>Renewables still ahead</span>
+              <span><span class="key compare"></span>Coal would stay ahead</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section tint" id="precedent" aria-labelledby="prec-title">
+        <div class="wrap">
+          <div class="section-copy">
+            <h2 id="prec-title">Coal has fallen in a growing year before, and come back.</h2>
+            <p>
+              Coal generation fell while demand grew in 2015 and 2019, by far more than in 2025.
+              Both times it later climbed to new records, reaching its highest ever in
+              <span data-bind="coalMax">2024</span>. One year’s fall doesn’t make a peak.
+            </p>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>Yearly change in coal generation</h3>
+                <p class="chart-sub">
+                  TWh change from the previous year, 2001–2025 · highlighted: falls while demand
+                  grew
+                </p>
+              </div>
+            </div>
+            <div class="chart-wrap scroll">
+              <svg
+                id="coalChart"
+                class="chart"
+                viewBox="0 0 760 320"
+                role="img"
+                aria-labelledby="coalDesc"
+              >
+                <desc id="coalDesc">
+                  Bars of yearly coal change. Falls in 2009 and 2020 came with falling demand; falls
+                  in 2015 (−323 TWh), 2019 (−210) and 2025 (−45) came with rising demand.
+                </desc>
+              </svg>
+              <div class="tooltip" id="coalTip" role="status" aria-live="polite" hidden></div>
+            </div>
+            <p class="legend">
+              <span><span class="key compare"></span>Coal fell while demand grew</span>
+              <span><span class="key other"></span>Other years</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section wrap" id="checks" aria-labelledby="checks-title">
+        <div class="section-copy">
+          <h2 id="checks-title">Every check we ran.</h2>
+        </div>
+        <div class="checks-scroll">
+          <table class="checks-table">
+            <caption class="sr-only">
+              Robustness checks
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Check</th>
+                <th scope="col">Result</th>
+                <th scope="col">Effect on the finding</th>
+              </tr>
+            </thead>
+            <tbody id="checkRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section method" id="method" aria-labelledby="method-title">
+        <div class="wrap method-grid">
+          <div><h2 id="method-title">What we still can’t answer.</h2></div>
+          <div class="method-copy">
+            <p>
+              <strong>Strongest supported conclusion.</strong> In Ember’s 2025 figures, clean
+              sources grew by more than world demand, mostly thanks to solar, and renewables (led by
+              hydro) edged past coal for the first time. Both are first-time events in this series,
+              by small margins.
+            </p>
+            <p>
+              <strong>Not supported.</strong> That clean power is now replacing fossil fuels, that
+              coal has peaked, or that wind and solar out-generate coal (they are
+              <span data-bind="windSolar">17.3%</span> against 33.2%).
+            </p>
+            <p>
+              <strong>Is 2025 final?</strong> The file doesn’t say. Revision history isn’t in the
+              data, so we show how big a revision would matter rather than how likely one is.
+            </p>
+            <p>
+              <strong>Hydro scenarios</strong> swap only the 2025 hydro figure, keeping every other
+              source as reported. Real dry years also change gas and coal output, which this file
+              can’t model.
+            </p>
+            <p class="source">
+              Reproduce: <code>python -I workflow/analysis/pressure_test.py</code> and
+              <code>node workflow/analysis/recompute_check.mjs</code> →
+              <code>data/processed/pressure-test.json</code>. Log:
+              <code>workflow/reports/02-pressure-test.md</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer><div class="wrap">Tested stage · pressure-tested findings · Data: Ember</div></footer>
+  </body>
+</html>

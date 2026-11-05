@@ -1,0 +1,109 @@
+/* Tested stage additions (ember-electricity). */
+.checks-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container-set-2, 16px);
+  background: var(--color-background-neutral);
+}
+.checks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 640px;
+}
+.checks-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--color-background-subtle);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.checks-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.checks-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.checks-table td:first-child {
+  font-weight: 600;
+  max-width: 260px;
+}
+.checks-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.checks-table td.num {
+  font-weight: 400;
+}
+.revisions td:nth-child(3) {
+  color: var(--muted);
+}
+.revisions td:nth-child(3) strong {
+  color: var(--ink);
+}
+
+/* Status chips (Data Chip states) */
+.status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status.verified {
+  background: var(--color-background-positive-subtle);
+  color: var(--color-text-positive);
+}
+.status.qualified {
+  background: var(--color-background-information-subtle);
+  color: var(--color-text-information);
+}
+.status.revised {
+  background: var(--color-background-warning-subtle);
+  color: var(--color-text-warning);
+}
+.status.rejected {
+  background: var(--color-background-negative-subtle);
+  color: var(--color-text-negative);
+}
+.revisions td:nth-child(4) { font-size: 13px; }
+.checks-table td { line-height: 1.45; }
+
+/* Revision slider */
+.slider-card { margin-bottom: 16px; }
+.slider-label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 10px; }
+.slider-label output { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+#kSlider { width: 100%; max-width: 560px; accent-color: var(--color-background-primary); height: 32px; }
+.k-read { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+.k-read strong { color: var(--ink); }
+.pair-bars { display: grid; gap: 8px; margin-top: 14px; max-width: 640px; }
+.pb { display: grid; grid-template-columns: 110px 1fr 90px; gap: 10px; align-items: center; font-size: 14px; }
+.pb i { display: block; height: 14px; width: var(--w); border-radius: 0 4px 4px 0; transition: width 200ms ease; }
+.pb.renew i { background: var(--c-renew); }
+.pb.coal i { background: var(--c-compare); }
+.pb b { text-align: right; font-variant-numeric: tabular-nums; }
+.verdict { display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.verdict.holds { background: var(--color-background-positive-subtle); color: var(--color-text-positive); }
+.verdict.fails { background: var(--color-background-negative-subtle); color: var(--color-text-negative); }
+.bar-fail { fill: var(--c-compare); }
+.bar-hold { fill: var(--c-renew); }
+.bar-actual { stroke: var(--ink); stroke-width: 2; }
+.stack-a { fill: var(--c-renew); }
+.stack-a2 { fill: var(--c-renew); fill-opacity: 0.45; }
+.stack-b { fill: var(--c-compare); }
+.stack-label { font-size: 13px; font-family: inherit; fill: var(--ink); }
+.stack-label.in { fill: var(--color-text-onprimary); font-weight: 600; }
+.legend .key.renew-light { background: var(--c-renew); opacity: 0.45; }
+.bar-hi { opacity: 1; }
+/* Phones: the composition chart scales down with its card; enlarge its text so it stays ~12px on screen */
+@media (max-width: 640px) {
+  #stackChart .stack-label { font-size: 20px; }
+  #stackChart .axis-label { font-size: 17px; }
+}
