@@ -1,0 +1,61 @@
+/*
+  craft.css: scroll effects modelled on scroll-craft (github.com/nateherkai/scroll-craft, MIT) by its
+  documented behaviour: masked kinetic lines, clip-path wipes, cue fades, staggered flow reveals.
+  Our own implementation; no scroll-craft code is vendored. Hidden start states apply only under
+  html.cr-on, which craft.js adds when the effects actually mount (and motion is allowed), so pages
+  read fully without JS, without motion, or if a script fails to load.
+*/
+
+/* Kinetic lines: each line slides up from behind its own mask */
+.cr-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.cr-line__i {
+  display: block;
+  will-change: transform;
+}
+
+/* Flow reveal (scroll-craft data-sc-in): fade + 14px rise over 620ms, ease-out, staggered children */
+.cr-on [data-cr-in] > *,
+.cr-on [data-cr-in].cr-self {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cr-on [data-cr-in].cr-in > *,
+.cr-on [data-cr-in].cr-self.cr-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Scrubbed clip-path wipe: JS writes --cr-t (0 → 1) from scroll position */
+.cr-on [data-cr-reveal="up"] {
+  clip-path: inset(calc((1 - var(--cr-t, 0)) * 100%) 0 0 0);
+}
+.cr-on [data-cr-reveal="down"] {
+  clip-path: inset(0 0 calc((1 - var(--cr-t, 0)) * 100%) 0);
+}
+.cr-on [data-cr-reveal="left"] {
+  clip-path: inset(0 calc((1 - var(--cr-t, 0)) * 100%) 0 0);
+}
+.cr-on [data-cr-reveal="right"] {
+  clip-path: inset(0 0 0 calc((1 - var(--cr-t, 0)) * 100%));
+}
+.cr-on [data-cr-reveal="iris"] {
+  clip-path: circle(calc(var(--cr-t, 0) * 78%) at 50% 50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Fewer and gentler, not zero: nothing translates or wipes; content is simply shown */
+  .cr-line__i {
+    transform: none !important;
+  }
+  [data-cr-reveal] {
+    clip-path: none !important;
+  }
+}

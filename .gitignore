@@ -1,0 +1,4 @@
+# HyperFrames snapshot/preview caches and dependencies
+.hyperframes/
+node_modules/
+.thumbnails/

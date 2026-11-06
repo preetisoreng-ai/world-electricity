@@ -1,0 +1,1041 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      container-type: size;
+      font-family: Inter, sans-serif;
+    }
+    /* The ocean stage (mirrors stageRect() in the script) */
+    #root .stage {
+      position: absolute;
+      left: 49cqw;
+      top: 16cqh;
+      width: 45cqw;
+      height: 68cqh;
+    }
+    @container (aspect-ratio < 0.7) {
+      #root .stage {
+        left: 8cqw;
+        top: 52cqh;
+        width: 84cqw;
+        height: 36cqh;
+      }
+    }
+    @container (0.7 <= aspect-ratio < 1.3) {
+      #root .stage {
+        left: 10cqw;
+        top: 53cqh;
+        width: 80cqw;
+        height: 32cqh;
+      }
+    }
+    #root svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    #root .rib-dot {
+      fill: none;
+      stroke: var(--cur-ink);
+      stroke-linecap: round;
+    }
+    #root .rib-bar {
+      fill: none;
+      stroke-linecap: butt;
+    }
+    #root .tip {
+      fill: var(--cur-ink);
+    }
+    #root .halo {
+      fill: var(--cur-ink);
+    }
+    #root .tex {
+      fill: none;
+      stroke: var(--cur-ink);
+      stroke-width: 0.9;
+      stroke-dasharray: 0.9 3;
+      stroke-linecap: round;
+      opacity: 0.26;
+    }
+    #root .spine-a {
+      fill: none;
+      stroke: var(--cur-ink);
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    #root .spine-b {
+      fill: none;
+      stroke: var(--ser-2);
+      stroke-linejoin: round;
+    }
+    #root .rule {
+      stroke: var(--cur-hair);
+      stroke-dasharray: 1 6;
+      stroke-width: 1;
+    }
+    #root .ref {
+      stroke: var(--cur-ink);
+      stroke-dasharray: 1 5;
+      stroke-width: 1.4;
+      opacity: 0.7;
+    }
+    #root text {
+      font-family: Inter, sans-serif;
+    }
+    #root .t-axis {
+      fill: var(--cur-muted);
+      font-weight: 400;
+    }
+    #root .t-year {
+      fill: var(--cur-ink);
+      font-weight: 400;
+    }
+    #root .t-lab {
+      fill: var(--cur-body);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+    }
+    #root .t-val {
+      fill: var(--cur-ink);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    #root .t-name {
+      fill: var(--cur-body);
+      font-weight: 400;
+    }
+    #root .t-num {
+      fill: var(--cur-ink);
+      font-weight: 700;
+    }
+    @container (aspect-ratio < 0.7) { #root .stage { left: 8cqw; top: 53cqh; width: 84cqw; height: 37cqh; } }
+    @container (0.7 <= aspect-ratio < 0.9) { #root .stage { left: 10cqw; top: 50cqh; width: 80cqw; height: 40cqh; } }
+    @container (0.9 <= aspect-ratio < 1.3) { #root .stage { left: 10cqw; top: 50cqh; width: 80cqw; height: 43cqh; } }
+  </style>
+  <div data-hf-id="hf-qk2b" id="root" data-composition-id="ocean" data-width="1080" data-height="1080">
+    <div data-hf-id="hf-wexf" class="stage" id="ocean-stage"><svg data-hf-id="hf-yeta" id="ocean-svg" aria-hidden="true"></svg></div>
+  </div>
+  <script>
+    (function () {
+      "use strict";
+      const C = window.EM_CONTENT;
+      const NS = "http://www.w3.org/2000/svg";
+      const host = document.querySelector('[data-composition-id="ocean"][data-width]');
+      const CW = +host.getAttribute("data-width"),
+        CH = +host.getAttribute("data-height");
+      // Stage rectangle in composition pixels (same numbers as the CSS above)
+      const a = CW / CH;
+      const R = a >= 1.3 ? [0.49, 0.16, 0.45, 0.68] : a < 0.7 ? [0.08, 0.53, 0.84, 0.37] : a < 0.9 ? [0.1, 0.5, 0.8, 0.4] : [0.1, 0.5, 0.8, 0.43];
+      const SW = R[2] * CW,
+        SH = R[3] * CH;
+      const svg = document.getElementById("ocean-svg");
+      svg.setAttribute("viewBox", `0 0 ${SW.toFixed(1)} ${SH.toFixed(1)}`);
+      const LS = Math.max(39, SH * 0.055); // smallest label = LS * 0.72 >= 28 px, the phone-readable floor
+      const el = (t, attrs, parent, txt) => {
+        const n = document.createElementNS(NS, t);
+        for (const k in attrs) n.setAttribute(k, attrs[k]);
+        if (txt != null) n.textContent = txt;
+        (parent || svg).append(n);
+        return n;
+      };
+      const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
+      const lerp = (p, q, u) => p + (q - p) * u;
+      const ease = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+      const easeOut = (u) => 1 - Math.pow(1 - u, 3);
+      const seg = (t, s, e) => clamp((t - s) / (e - s));
+      const fmt = (v) => Math.round(v).toLocaleString("en-US");
+      const chart = (id) => C.charts.find((c) => c.id === id);
+
+      /* ---------------- Data (all from content.json) ---------------- */
+      const cur = chart("currents").rows,
+        N = cur.length,
+        L = N - 1;
+      const cross = chart("crossover").rows,
+        sol = chart("solar").rows;
+      const growth = chart("growth").rows; // sorted desc by change
+      const margin = chart("margin").rows; // renewables, coal, renewables without hydro
+      const SRC = {
+        Coal: "--src-coal",
+        Gas: "--src-gas",
+        "Other fossil": "--src-other-fossil",
+        Nuclear: "--src-nuclear",
+        Hydro: "--src-hydro",
+        Wind: "--src-wind",
+        Solar: "--src-solar",
+        Bioenergy: "--src-bioenergy",
+        "Other renewables": "--src-other-renewables",
+      };
+
+      /* ---------------- Timing (seconds; 1.2 s grid = two beats at 100 BPM) ---------------- */
+      const T = [6.0, 13.2, 20.4, 27.6, 34.8]; // transition starts
+      const TD = 1.8; // transition length
+
+      /* ---------------- Poses ---------------- */
+      // Fish (= the two-currents chart at home, true scale)
+      const fm = { l: 0.03 * SW, r: 0.17 * SW, t: 0.06 * SH, b: 0.06 * SH };
+      const UP = 15000,
+        DOWN = 20000,
+        k = (SH - fm.t - fm.b) / (UP + DOWN),
+        cY = fm.t + UP * k;
+      const fx = (i) => fm.l + (i / L) * (SW - fm.l - fm.r);
+      const hx = (fm.l + SW - fm.r) / 2,
+        hy = cY;
+      function fish(o) {
+        // o: { cx, cy, s, flip, fold, wave, ph }
+        const tr = (x, y) => [o.cx + o.flip * o.s * (x - hx), o.cy + o.s * (y - hy)];
+        const A = 0.06 * SH * o.wave;
+        const spine = [],
+          ribs = [],
+          dots = [];
+        for (let i = 0; i < N; i++) {
+          // travelling body wave: runs head (2025) → tail (2000), strongest at the tail, like a swimming fish
+          const by = cY + A * (0.3 + 0.7 * (1 - i / L)) * Math.sin((i / N) * Math.PI * 2.2 + o.ph);
+          const bx = fx(i);
+          const lu = cur[i][1] * k,
+            ld = cur[i][2] * k;
+          spine.push(tr(bx, by));
+          for (const [len, dir] of [
+            [lu, -1],
+            [ld, 1],
+          ]) {
+            const L2 = len * (1 - 0.86 * o.fold),
+              dx = -o.fold * len * 0.55;
+            const p1 = tr(bx, by),
+              p2 = tr(bx + dx, by + dir * L2);
+            ribs.push({
+              x1: p1[0],
+              y1: p1[1],
+              x2: p2[0],
+              y2: p2[1],
+              bend: dir * 0.14 * (1 - 0.5 * o.fold) * o.flip, // upper and lower ribs both curve back toward the tail, like fishbones
+              dw: Math.max(0.8, 1.3 * Math.max(o.s, 0.5)),
+              dop: 1,
+              bw: 0,
+              bop: 0,
+            });
+            dots.push({ x: p2[0], y: p2[1], r: (i === L ? 5 : 3.2) * Math.max(o.s, 0.45), op: 1 });
+          }
+        }
+        return {
+          spineA: spine,
+          spineB: spine.map((p) => p.slice()),
+          ribs,
+          dots,
+          aw: 1,
+          aop: 0.35,
+          bw: 1,
+          bop: 0,
+          tex: 1 - o.fold,
+        };
+      }
+      const HOME = { cx: hx, cy: hy, s: 1, flip: 1, fold: 0, wave: 0, ph: 0 };
+      // Swim target: the bottom left of the screen (beyond the stage in landscape, under the copy that is scrolling away)
+      const SWIM = a >= 1.3 ? { cx: 0.3 * SW, cy: 1.0 * SH, s: 0.3, flip: -1, fold: 1, wave: 1, ph: 0 } : { cx: 0.12 * SW, cy: 0.96 * SH, s: 0.3, flip: -1, fold: 1, wave: 1, ph: 0 };
+      const END = { cx: hx, cy: hy, s: 0.82, flip: 1, fold: 0, wave: 0, ph: 0 };
+
+      // Two lines (crossover, solar/wind)
+      const lm = { l: 0.09 * SW, r: Math.max(0.22 * SW, LS * 6.6), t: 0.08 * SH, b: 0.13 * SH };
+      const lx = (i) => lm.l + (i / L) * (SW - lm.l - lm.r);
+      function lines(rows, lo, hi, q) {
+        const ly = (v) => lm.t + ((hi - v) / (hi - lo)) * (SH - lm.t - lm.b);
+        const reach = q * L,
+          kk = Math.floor(reach),
+          f = reach - kk;
+        const pt = (col, i) => {
+          if (i <= kk) return [lx(i), ly(rows[i][col])];
+          if (kk + 1 > L) return [lx(L), ly(rows[L][col])];
+          return [lerp(lx(kk), lx(kk + 1), f), lerp(ly(rows[kk][col]), ly(rows[kk + 1][col]), f)];
+        };
+        const A = [],
+          B = [],
+          ribs = [],
+          dots = [];
+        for (let i = 0; i < N; i++) {
+          const pa = pt(1, i),
+            pb = pt(2, i);
+          A.push(pa);
+          B.push(pb);
+          ribs.push({
+            x1: pa[0],
+            y1: pa[1],
+            x2: pa[0],
+            y2: pa[1],
+            bend: 0,
+            dw: 1,
+            dop: 0,
+            bw: 0,
+            bop: 0,
+          });
+          ribs.push({
+            x1: pb[0],
+            y1: pb[1],
+            x2: pb[0],
+            y2: pb[1],
+            bend: 0,
+            dw: 1,
+            dop: 0,
+            bw: 0,
+            bop: 0,
+          });
+          const end = i === L ? clamp((q - 0.97) / 0.03) : 0;
+          dots.push({ x: pa[0], y: pa[1], r: 5 * end, op: end });
+          dots.push({ x: pb[0], y: pb[1], r: 4 * end, op: end });
+        }
+        return { spineA: A, spineB: B, ribs, dots, aw: 3.4, aop: 1, bw: 3.4, bop: 1, tex: 0, ly };
+      }
+
+      // Horizontal bars from the head ribs (change by source; margin)
+      function bars(rows, opts, g) {
+        // rows: [[name, value]], opts: { left, right, top, bottom, colors(name, j) -> [color, opacity] }
+        const n = rows.length;
+        const vals = rows.map((r) => r[1]),
+          lo = Math.min(0, ...vals),
+          hi = Math.max(0, ...vals);
+        const X = (v) => opts.left + ((v - lo) / (hi - lo)) * (SW - opts.left - opts.right);
+        const rh = (SH - opts.top - opts.bottom) / n,
+          th = rh * opts.thick;
+        const yOf = (j) => opts.top + j * rh + rh * opts.offset;
+        const x0 = X(0);
+        const ribs = [],
+          dots = [];
+        const first = 2 * (N - n); // the last n "up" ribs become the bars (index i*2 is up)
+        for (let r = 0; r < 2 * N; r++) {
+          const up = r % 2 === 0,
+            i = r >> 1,
+            j = i - (N - n);
+          if (up && j >= 0) {
+            const y = yOf(j),
+              xe = lerp(x0, X(rows[j][1]), g);
+            const [col, op] = opts.colors(rows[j][0], j);
+            ribs.push({
+              x1: x0,
+              y1: y,
+              x2: xe,
+              y2: y,
+              bend: 0,
+              dw: th,
+              dop: 0,
+              bw: th,
+              bop: op,
+              col,
+            });
+            const tipOn = clamp((g - 0.9) / 0.1); // bright tips at the bar ends once grown: the rib tips keep breathing
+            dots.push({ x: xe, y, r: 3.4 * tipOn, op: tipOn });
+          } else {
+            const y = yOf(Math.min(n - 1, Math.max(0, Math.round((i / L) * (n - 1)))));
+            ribs.push({ x1: x0, y1: y, x2: x0, y2: y, bend: 0, dw: 1, dop: 0, bw: 0, bop: 0 });
+            dots.push({ x: x0, y, r: 0, op: 0 });
+          }
+        }
+        void first;
+        const axis = Array.from({ length: N }, (_, i) => [
+          x0,
+          lerp(opts.top - rh * 0.1, SH - opts.bottom, i / L),
+        ]);
+        return {
+          spineA: axis,
+          spineB: axis.map((p) => p.slice()),
+          ribs,
+          dots,
+          aw: 1,
+          aop: 0.5,
+          bw: 1,
+          bop: 0,
+          tex: 0,
+          X,
+          yOf,
+          rh,
+          x0,
+        };
+      }
+      const BARS_OPTS = {
+        left: Math.max(0.27 * SW, LS * 9),
+        right: 0.12 * SW,
+        top: 0.05 * SH,
+        bottom: 0.1 * SH,
+        thick: 0.56,
+        offset: 0.5,
+        colors: (name) => [`var(${SRC[name]})`, 1],
+      };
+      const MARG_OPTS = {
+        left: 0.02 * SW,
+        right: 0.2 * SW,
+        top: 0.06 * SH,
+        bottom: 0.08 * SH,
+        thick: 0.34,
+        offset: 0.62,
+        colors: (name, j) => (j === 1 ? ["var(--ser-2)", 1] : ["var(--ser-1)", j === 2 ? 0.38 : 1]),
+      };
+      const margBars = (g) => {
+        const G = bars(margin, MARG_OPTS, g);
+        // spine B becomes the dotted reference line at coal's length
+        const xc = G.X(margin[1][1]);
+        G.spineB = Array.from({ length: N }, (_, i) => [
+          xc,
+          lerp(MARG_OPTS.top * 0.5, SH - MARG_OPTS.bottom * 0.5, i / L),
+        ]);
+        G.bw = 1.4;
+        G.bop = 0.7 * g;
+        G.bdash = 1;
+        return G;
+      };
+
+      /* ---------------- Mixing ---------------- */
+      function mix(P, Q, u) {
+        if (u <= 0) return P;
+        if (u >= 1) return Q;
+        const mp = (a, b) => a.map((p, i) => [lerp(p[0], b[i][0], u), lerp(p[1], b[i][1], u)]);
+        const out = { spineA: mp(P.spineA, Q.spineA), spineB: mp(P.spineB, Q.spineB) };
+        out.ribs = P.ribs.map((r, i) => {
+          const s = Q.ribs[i];
+          const o = {};
+          for (const key of ["x1", "y1", "x2", "y2", "bend", "dw", "dop", "bw", "bop"])
+            o[key] = lerp(r[key], s[key], u);
+          o.col = s.col || r.col;
+          return o;
+        });
+        out.dots = P.dots.map((d, i) => {
+          const e = Q.dots[i];
+          return {
+            x: lerp(d.x, e.x, u),
+            y: lerp(d.y, e.y, u),
+            r: lerp(d.r, e.r, u),
+            op: lerp(d.op, e.op, u),
+          };
+        });
+        for (const key of ["aw", "aop", "bw", "bop", "tex"]) out[key] = lerp(P[key], Q[key], u);
+        out.bdash = u < 0.5 ? P.bdash || 0 : Q.bdash || 0;
+        return out;
+      }
+
+      // Staggered morph: each mark gets its own window inside the morph (a left→right ripple of `stag` of the
+      // duration), eased with GSAP's power3.inOut. Same keys as mix(); deterministic in u.
+      const E3 = gsap.parseEase("sine.inOut"); // gentle start and landing
+      function mixS(P, Q, u, stag) {
+        if (u <= 0) return P;
+        if (u >= 1) return Q;
+        const w = (i, n) => E3(clamp((u - stag * (n > 1 ? i / (n - 1) : 0)) / (1 - stag)));
+        const mp = (a, b) => a.map((p, i) => { const k = w(i, a.length); return [lerp(p[0], b[i][0], k), lerp(p[1], b[i][1], k)]; });
+        const out = { spineA: mp(P.spineA, Q.spineA), spineB: mp(P.spineB, Q.spineB) };
+        out.ribs = P.ribs.map((r, i) => {
+          const q = Q.ribs[i], k = w(i, P.ribs.length), o = {};
+          for (const key of ["x1", "y1", "x2", "y2", "bend", "dw", "dop", "bw", "bop"]) o[key] = lerp(r[key], q[key], k);
+          o.col = k < 0.5 ? r.col || q.col : q.col || r.col;
+          return o;
+        });
+        out.dots = P.dots.map((d, i) => {
+          const e = Q.dots[i], k = w(i, P.dots.length);
+          return { x: lerp(d.x, e.x, k), y: lerp(d.y, e.y, k), r: lerp(d.r, e.r, k), op: lerp(d.op, e.op, k) };
+        });
+        const g = E3(u);
+        for (const key of ["aw", "aop", "bw", "bop", "tex"]) out[key] = lerp(P[key], Q[key], g);
+        out.bdash = g < 0.5 ? P.bdash || 0 : Q.bdash || 0;
+        return out;
+      }
+
+      /* ---------------- Scene state at time t ---------------- */
+      const breath = (t) => 0.012 * Math.sin(t * 1.3); // ≤ 2 px sway during fish holds
+      const fishHome = (t) => fish({ ...HOME, wave: breath(t), ph: t });
+      // Swim along a curved path: dive first (cy eases out), then glide left (cx eases in), folding and shrinking as it goes
+      const swimAt = (b, t) => fish({ cx: lerp(hx, SWIM.cx, b * b * b), cy: lerp(hy, SWIM.cy, 1 - Math.pow(1 - b, 3)), s: lerp(1, SWIM.s, b), flip: lerp(1, SWIM.flip, ease(clamp(b * 1.6))), fold: ease(clamp(b * 1.8)), wave: clamp(b * 2), ph: t * 7 });
+      const endFish = (t) => fish({ ...END, wave: breath(t), ph: t });
+      const qDraw = (t, T0) => 1; // later charts arrive complete: the morph itself is the reveal
+      const qDraw1 = (t, T0) => 1; // the crossover lines are formed by the fold itself (exact final data) // crossover: draws as the fold opens out
+      const gGrow = (t, T0) => 1; // bars arrive complete
+      // Opening = the data story's first frame: each year's threads grow out of the centreline,
+      // sweeping 2000 → 2025 (reach = p·(N+5), each year easing out over 5 years of the sweep)
+      const OPEN = [0.3, 2.7];
+      const FOLD = 1.0; // a chart folds into the next chart's baseline, in place, then the next chart grows
+      function grow(G, p) {
+        const reach = p * (N + 5);
+        const ti = (j) => easeOut(clamp((reach - (j >> 1)) / 5));
+        const out = { ...G };
+        out.ribs = G.ribs.map((r, j) => {
+          const u = ti(j);
+          return { ...r, x2: lerp(r.x1, r.x2, u), y2: lerp(r.y1, r.y2, u), dop: u > 0.02 ? r.dop : 0 };
+        });
+        out.dots = G.dots.map((d, j) => {
+          const u = ti(j),
+            r = G.ribs[j];
+          return { ...d, x: lerp(r.x1, d.x, u), y: lerp(r.y1, d.y, u), op: u > 0.02 ? d.op : 0 };
+        });
+        out.aop = G.aop * clamp(p * 4);
+        out.tex = (G.tex == null ? 1 : G.tex) * p;
+        return out;
+      }
+      const openP = (t) => seg(t, OPEN[0], OPEN[1]);
+      const endP = (t) => seg(t, T[4] + 0.55, T[4] + 0.55 + (OPEN[1] - OPEN[0])); // the opening's 2.4 s sweep // same 2.4 s sweep as the opening
+      const holdPose = [
+        (t) => grow(fishHome(t), openP(t)),
+        (t) => lines(cross, 15, 45, qDraw1(t, T[0])),
+        (t) => bars(growth, BARS_OPTS, gGrow(t, T[1])),
+        (t) => lines(sol, 0, 3000, qDraw(t, T[2])),
+        (t) => margBars(gGrow(t, T[3])),
+        (t) => grow(endFish(t), endP(t)), // closing chart grows exactly like the opening
+      ];
+      // Every change is one motion: fold → swim → open out.
+      //  fold  (0.00–0.75 s): the chart on screen gathers into the invisible fish's folded skeleton
+      //  swim  (0.35–1.55 s): the skeleton swims along a shallow dive-and-rise arc to the next chart's side
+      //  open  (1.20–2.10 s): it opens out into the next chart, which then grows / draws
+      const SIDE = [0, 0, 0, 0, 0, 1]; // charts on the right, copy on the left; only the end card swaps
+      const SHIFT = a >= 1.3 ? -0.45 * CW : 0; // chart 49–94% ↔ 4–49%
+      // Change 1 only — the invisible fish: it folds at full size (0–0.7 s), turns, then swims along a gliding
+      // S-path to the next chart's side, shrinking gradually as it nears the destination (0.5–1.9 s),
+      // and opens out into the crossover chart (1.6–2.5 s).
+      // Change 1 — fold, no swim: the skeleton folds its ribs back along the spine in place (0–0.9 s),
+      // then opens out into the crossover chart (0.7–1.6 s), whose lines draw from 1.0 s.
+      const FOLD1 = [0, 1.0],
+        OPEN_T = [0.7, 2.0],
+        TD1 = 2.0;
+      // Changes 2–5: a seamless in-place morph (0–1.3 s); the next chart draws as it lands.
+      const MORPH = 1.6;
+      const smooth = (x) => x * x * (3 - 2 * x);
+      const foldPose = (t, u) => fish({ ...HOME, fold: smooth(seg(u, FOLD1[0], FOLD1[1])), wave: breath(t), ph: t });
+      // Change 1 — the fish's fold (1.5 s, one continuous sine-eased motion, no crossfade):
+      //  ribs: a fold ripples 2000 → 2025; each rib pivots inward toward the tail and shortens just after its neighbour.
+      //  edges: the two dotted edges (rib tips) travel on separate arcs — the top edge arcs above, the bottom edge
+      //         below — and land on the two trend lines (top → coal, dashed; bottom → renewables, solid), so they never cross.
+      //  strokes: the lines form through the moving dots; dots close their gaps (shrink) as the strokes come up.
+      const TF = 1.5;
+      function foldToLines(F, Z, u) {
+        const out = { ...Z };
+        const ripple = (i) => 0.45 * (i / L); // fold starts at 2000 and travels toward 2025
+        out.ribs = F.ribs.map((r, j) => {
+          const i = j >> 1,
+            up = (j & 1) === 0;
+          const f = E3(seg(u, ripple(i), ripple(i) + 0.6));
+          const vx = r.x2 - r.x1,
+            vy = r.y2 - r.y1,
+            th = (up ? -1 : 1) * 1.15 * f,
+            k = 1 - f;
+          const rx = (vx * Math.cos(th) - vy * Math.sin(th)) * k,
+            ry = (vx * Math.sin(th) + vy * Math.cos(th)) * k;
+          return { ...r, x2: r.x1 + rx, y2: r.y1 + ry, bend: r.bend * k, dop: r.dop * (1 - smooth(seg(f, 0.5, 1))) };
+        });
+        const pos = [];
+        out.dots = F.dots.map((d, j) => {
+          const i = j >> 1,
+            up = (j & 1) === 0;
+          const tgt = up ? Z.spineB[i] : Z.spineA[i]; // top edge → coal, bottom edge → renewables
+          const zd = Z.dots[up ? 2 * i + 1 : 2 * i];
+          const e = E3(seg(u, 0.12 + 0.4 * (i / L), 0.12 + 0.4 * (i / L) + 0.95));
+          const mx = (d.x + tgt[0]) / 2 - 0.05 * SW,
+            my = up ? Math.min(d.y, tgt[1]) - 0.1 * SH : Math.max(d.y, tgt[1]) + 0.1 * SH;
+          const x = (1 - e) * (1 - e) * d.x + 2 * (1 - e) * e * mx + e * e * tgt[0],
+            y = (1 - e) * (1 - e) * d.y + 2 * (1 - e) * e * my + e * e * tgt[1];
+          pos[j] = [x, y];
+          const c = smooth(seg(e, 0.55, 1)); // the gap closes as the dot settles into its line
+          return { x, y, r: lerp(d.r, zd.r, c), op: lerp(d.op, zd.op, c) };
+        });
+        // strokes: lift off the spine and run through the moving dots of their edge
+        const lift = E3(seg(u, 0, 0.45));
+        out.spineA = F.spineA.map((p, i) => [lerp(p[0], pos[2 * i + 1][0], lift), lerp(p[1], pos[2 * i + 1][1], lift)]);
+        out.spineB = F.spineB.map((p, i) => [lerp(p[0], pos[2 * i][0], lift), lerp(p[1], pos[2 * i][1], lift)]);
+        const g = E3(seg(u, 0.35, TF));
+        out.aw = lerp(F.aw, Z.aw, g);
+        out.aop = lerp(F.aop, Z.aop, g);
+        out.bw = lerp(F.bw, Z.bw, g);
+        out.bop = lerp(0, Z.bop, g);
+        out.tex = F.tex * (1 - smooth(seg(u, 0, 0.35)));
+        out.bdash = 0;
+        if (u >= TF) return Z;
+        return out;
+      }
+      // Change 5 — margin bars → closing chart (1.5 s, one sine-eased movement, no crossfade, never empty):
+      //  bars retract from the left, right edges staying, narrowing into thin strokes; the strokes glide left on
+      //  shallow arcs and become the first three ribs (2000–2002); the other ribs unfold in a wave behind them,
+      //  starting while the last bar is still retracting; tips (dotted contours) grow from the moving rib ends.
+      const TF5 = 1.5;
+      const bez = (a, c, b, m) => (1 - m) * (1 - m) * a + 2 * (1 - m) * m * c + m * m * b;
+      function foldToEnd(F, Z, u) {
+        const out = { ...Z };
+        const seedM = [];
+        out.ribs = Z.ribs.map((zr, r) => {
+          const i = r >> 1,
+            up = (r & 1) === 0;
+          if (i < 3) {
+            const fb = F.ribs[2 * (N - 3 + i)];
+            const ret = E3(seg(u, 0.1 * i, 0.5 + 0.1 * i)); // retract from the left
+            const m = E3(seg(u, 0.2 + 0.12 * i, 0.95 + 0.12 * i)); // glide to the rib's place
+            seedM[i] = m;
+            const lx = lerp(fb.x1, fb.x2, ret * 0.92),
+              rx = fb.x2,
+              y = fb.y1;
+            const c1x = (lx + zr.x1) / 2,
+              c1y = Math.min(y, zr.y1) - 0.06 * SH,
+              c2x = (rx + zr.x2) / 2,
+              c2y = Math.min(y, zr.y2) - 0.06 * SH;
+            const w = lerp(fb.bw, 2, ret);
+            const done = smooth(seg(m, 0.45, 1));
+            return {
+              x1: bez(lx, c1x, zr.x1, m),
+              y1: bez(y, c1y, zr.y1, m),
+              x2: bez(rx, c2x, zr.x2, m),
+              y2: bez(y, c2y, zr.y2, m),
+              bend: zr.bend * m,
+              dw: zr.dw,
+              dop: zr.dop * smooth(seg(m, 0.35, 1)),
+              bw: up ? w * (1 - done) : 0,
+              bop: up ? fb.bop * (1 - done) : 0,
+              col: fb.col,
+            };
+          }
+          const o = E3(seg(u, 0.35 + 0.55 * ((i - 3) / (L - 3)), 0.95 + 0.55 * ((i - 3) / (L - 3)))); // the unfolding wave
+          return {
+            ...zr,
+            x2: lerp(zr.x1, zr.x2, o),
+            y2: lerp(zr.y1, zr.y2, o),
+            bend: zr.bend * o,
+            dop: zr.dop * smooth(seg(o, 0, 0.3)),
+            bw: 0,
+            bop: 0,
+          };
+        });
+        out.dots = Z.dots.map((zd, r) => {
+          const i = r >> 1,
+            rib = out.ribs[r];
+          if (i < 3) {
+            const fd = F.dots[2 * (N - 3 + i)],
+              m = seedM[i];
+            const keep = (r & 1) === 0 ? fd.op * (1 - smooth(seg(m, 0.6, 1))) : 0; // the bar's bright tip rides along
+            const grow = smooth(seg(m, 0.55, 1));
+            return { x: rib.x2, y: rib.y2, r: Math.max(fd.r * (1 - grow), zd.r * grow), op: Math.max(keep, zd.op * grow) };
+          }
+          const o = E3(seg(u, 0.35 + 0.55 * ((i - 3) / (L - 3)), 0.95 + 0.55 * ((i - 3) / (L - 3))));
+          return { x: rib.x2, y: rib.y2, r: zd.r * smooth(seg(o, 0.2, 1)), op: zd.op * smooth(seg(o, 0.2, 0.7)) };
+        });
+        // centreline: grows with the wave front, out of the bars' zero axis
+        const front = clamp((u - 0.2) / 1.2) * L;
+        const sp = (i) => {
+          const k = Math.min(i, front),
+            k0 = Math.floor(k),
+            f = k - k0,
+            k1 = Math.min(L, k0 + 1);
+          return [lerp(Z.spineA[k0][0], Z.spineA[k1][0], f), lerp(Z.spineA[k0][1], Z.spineA[k1][1], f)];
+        };
+        // the bars' zero axis fades where it stands; the centreline then grows with the rib wave (no stray fragment)
+        if (u < 0.4) {
+          out.spineA = F.spineA;
+          out.aw = F.aw;
+          out.aop = F.aop * (1 - smooth(seg(u, 0, 0.4)));
+        } else {
+          out.spineA = Z.spineA.map((_, i) => sp(i));
+          out.aw = Z.aw;
+          out.aop = Z.aop * smooth(seg(u, 0.45, 1.1));
+        }
+        out.spineB = F.spineB; // coal reference line fades in place
+        out.bw = F.bw;
+        out.bop = F.bop * (1 - E3(seg(u, 0, 0.45)));
+        out.bdash = F.bdash;
+        out.tex = Z.tex * E3(seg(u, 0.6, TF5));
+        if (u >= TF5) return Z;
+        return out;
+      }
+      // Change 5 (v2) — the closing chart grows exactly like the opening (grow(): threads sweep out of the centreline
+      // 2000 → 2025). The margin bars retract from the left into thin strokes that glide left on shallow arcs into the
+      // 2000 end of the centreline, where the sweep begins. Bars use the late-year rib slots, which the sweep reaches last.
+      const TB = 1.2;
+      function barsIntoSweep(F, G, Zfull, u) {
+        const out = { ...G };
+        out.ribs = G.ribs.slice();
+        out.dots = G.dots.slice();
+        for (let j = 0; j < 3; j++) {
+          const slot = 2 * (N - 3 + j),
+            fb = F.ribs[slot],
+            fd = F.dots[slot];
+          const ret = E3(seg(u, 0.08 * j, 0.45 + 0.08 * j));
+          const m = E3(seg(u, 0.2 + 0.1 * j, 0.95 + 0.1 * j));
+          if (m >= 1) continue;
+          const [tx, ty] = Zfull.spineA[j];
+          const lx = lerp(fb.x1, fb.x2, ret * 0.92),
+            rx = fb.x2,
+            y = fb.y1;
+          const cy = Math.min(y, ty) - 0.06 * SH;
+          const x1 = bez(lx, (lx + tx) / 2, tx, m),
+            x2 = bez(rx, (rx + tx) / 2, tx, m),
+            y1 = bez(y, cy, ty, m),
+            y2 = bez(y, cy, ty, m);
+          const fade = 1 - smooth(seg(m, 0.7, 1));
+          out.ribs[slot] = { x1, y1, x2, y2, bend: 0, dw: 1, dop: 0, bw: lerp(fb.bw, 2, ret) * fade, bop: fb.bop * fade, col: fb.col };
+          out.dots[slot] = { x: x2, y: y2, r: fd.r, op: fd.op * (1 - smooth(seg(m, 0.6, 1))) };
+        }
+        if (u < 0.4) {
+          out.spineA = F.spineA;
+          out.aw = F.aw;
+          out.aop = F.aop * (1 - smooth(seg(u, 0, 0.4)));
+        }
+        if (u < 0.45) {
+          out.spineB = F.spineB;
+          out.bw = F.bw;
+          out.bop = F.bop * (1 - E3(seg(u, 0, 0.45)));
+          out.bdash = F.bdash;
+        }
+        return out;
+      }
+      function state(t) {
+        let s = 0;
+        while (s < T.length && t >= T[s]) s++;
+        if (s === 0) return holdPose[0](t);
+        const T0 = T[s - 1],
+          u = t - T0;
+        if (s === 1) {
+          if (u >= TF) return holdPose[1](t);
+          return foldToLines(holdPose[0](T0), holdPose[1](t), u);
+        }
+        if (s === 5) {
+          if (u >= TB) return holdPose[5](t);
+          return barsIntoSweep(holdPose[4](T0), holdPose[5](t), endFish(T0), u);
+        }
+        if (u >= MORPH) return holdPose[s](t);
+        return mixS(holdPose[s - 1](T0), holdPose[s](t), seg(u, 0, MORPH), 0.35);
+      }
+      function sideAt(t) {
+        let s = 0;
+        while (s < T.length && t >= T[s]) s++;
+        if (s === 0) return SIDE[0];
+        const u = t - T[s - 1];
+        const w = s === 5 ? E3(seg(u, 0, TF5)) : E3(seg(u, 0, MORPH)); // one ease, no jump left
+        return lerp(SIDE[s - 1], SIDE[s], w);
+      }
+
+      /* ---------------- Static marks ---------------- */
+      const defs = el("defs", {});
+      const blur = el(
+        "filter",
+        { id: "oc-glow", x: "-200%", y: "-200%", width: "500%", height: "500%" },
+        defs
+      );
+      el("feGaussianBlur", { stdDeviation: "3" }, blur);
+      // Fish labels and texture live in a group that follows the fish transform (home / end)
+      const fishG = el("g", {});
+      [5000, 10000].forEach((v) =>
+        el(
+          "line",
+          { class: "rule", x1: fm.l, x2: SW - fm.r, y1: cY - v * k, y2: cY - v * k },
+          fishG
+        )
+      );
+      [5000, 10000, 15000].forEach((v) =>
+        el(
+          "line",
+          { class: "rule", x1: fm.l, x2: SW - fm.r, y1: cY + v * k, y2: cY + v * k },
+          fishG
+        )
+      );
+      for (let i = 0; i < N; i++) {
+        const w = ((SW - fm.l - fm.r) / L) * 0.42,
+          xc = fx(i);
+        for (const [len, dir] of [
+          [cur[i][1] * k, -1],
+          [cur[i][2] * k, 1],
+        ])
+          for (let j = -3; j <= 3; j++)
+            if (j) {
+              let d = "M";
+              for (let s2 = 0; s2 <= 16; s2++) {
+                const u = s2 / 16;
+                d += `${(xc + Math.sin(Math.PI * u) * w * (j / 3) + Math.sin(i * 1.7 + j + u * 5) * 1.2).toFixed(1)},${(cY + dir * len * u).toFixed(1)} `;
+              }
+              el("path", { class: "tex", d }, fishG);
+            }
+      }
+      const fishLab = el("g", {}, fishG);
+      [
+        [0, cur[0][0]],
+        [L, cur[L][0]],
+      ].forEach(([i, yr]) =>
+        el(
+          "text",
+          { class: "t-year", x: fx(i), y: cY + LS * 1.5, "text-anchor": "middle", "font-size": LS },
+          fishLab,
+          yr
+        )
+      );
+      const hxL = fx(L) + LS * 0.9;
+      el(
+        "text",
+        { class: "t-lab", x: hxL, y: cY - cur[L][1] * k - LS * 0.5, "font-size": LS * 0.9 },
+        fishLab,
+        "CLEAN"
+      );
+      el(
+        "text",
+        { class: "t-val", x: hxL, y: cY - cur[L][1] * k + LS * 1.1, "font-size": LS * 1.5 },
+        fishLab,
+        fmt(cur[L][1])
+      );
+      el(
+        "text",
+        { class: "t-lab", x: hxL, y: cY + cur[L][2] * k - LS * 1.8, "font-size": LS * 0.9 },
+        fishLab,
+        "FOSSIL"
+      );
+      el(
+        "text",
+        { class: "t-val", x: hxL, y: cY + cur[L][2] * k - LS * 0.2, "font-size": LS * 1.5 },
+        fishLab,
+        fmt(cur[L][2])
+      );
+
+      // Chart label groups
+      function lineLabels(rows, lo, hi, ticks, tickFmt, names, valFmt) {
+        const g = el("g", { opacity: 0 });
+        const ly = (v) => lm.t + ((hi - v) / (hi - lo)) * (SH - lm.t - lm.b);
+        ticks.forEach((v) => {
+          el("line", { class: "rule", x1: lm.l, x2: SW - lm.r, y1: ly(v), y2: ly(v) }, g);
+          el(
+            "text",
+            {
+              class: "t-axis",
+              x: lm.l - LS * 0.5,
+              y: ly(v) + LS * 0.35,
+              "text-anchor": "end",
+              "font-size": LS * 0.75,
+            },
+            g,
+            tickFmt(v)
+          );
+        });
+        [0, L].forEach((i) =>
+          el(
+            "text",
+            {
+              class: "t-year",
+              x: lx(i),
+              y: SH - lm.b + LS * 1.7,
+              "text-anchor": "middle",
+              "font-size": LS,
+            },
+            g,
+            rows[i][0]
+          )
+        );
+        let ya = ly(rows[L][1]),
+          yb = ly(rows[L][2]);
+        if (Math.abs(ya - yb) < LS * 2.6) {
+          const m = (ya + yb) / 2,
+            d = LS * 1.35;
+          if (ya <= yb) {
+            ya = m - d;
+            yb = m + d;
+          } else {
+            ya = m + d;
+            yb = m - d;
+          }
+        }
+        const x = lx(L) + LS * 1.1;
+        el(
+          "text",
+          { class: "t-lab", x, y: ya - LS * 0.2, "font-size": LS * 0.75 },
+          g,
+          names[0].toUpperCase()
+        );
+        el(
+          "text",
+          { class: "t-num", x, y: ya + LS * 1.05, "font-size": LS * 1.15 },
+          g,
+          valFmt(rows[L][1]) + "  ——"
+        );
+        el(
+          "text",
+          { class: "t-lab", x, y: yb - LS * 0.2, "font-size": LS * 0.75 },
+          g,
+          names[1].toUpperCase()
+        );
+        el(
+          "text",
+          { class: "t-num", x, y: yb + LS * 1.05, "font-size": LS * 1.15 },
+          g,
+          valFmt(rows[L][2]) + "  - - -"
+        );
+        return g;
+      }
+      const crossLab = lineLabels(
+        cross,
+        15,
+        45,
+        [20, 30, 40],
+        (v) => v + "%",
+        ["Renewables", "Coal"],
+        (v) => v.toFixed(1) + "%"
+      );
+      const solLab = lineLabels(
+        sol,
+        0,
+        3000,
+        [1000, 2000, 3000],
+        (v) => v / 1000 + "k",
+        ["Solar", "Wind"],
+        (v) => fmt(v)
+      );
+      const ring = el("circle", {
+        r: 0,
+        fill: "none",
+        stroke: "var(--cur-ink)",
+        "stroke-width": 1.6,
+      });
+
+      const B9 = bars(growth, BARS_OPTS, 1);
+      const growLab = el("g", { opacity: 0 });
+      growth.forEach(([name, v], j) => {
+        el(
+          "text",
+          {
+            class: "t-name",
+            x: BARS_OPTS.left - LS * 0.7,
+            y: B9.yOf(j) + LS * 0.35,
+            "text-anchor": "end",
+            "font-size": LS * 0.95,
+          },
+          growLab,
+          name
+        );
+        el(
+          "text",
+          {
+            class: "t-num",
+            x: (v >= 0 ? B9.X(v) : B9.x0) + LS * 0.6,
+            y: B9.yOf(j) + LS * 0.35,
+            "font-size": LS * 0.95,
+          },
+          growLab,
+          (v >= 0 ? "+" : "−") + fmt(Math.abs(v))
+        );
+      });
+      el(
+        "text",
+        { class: "t-lab", x: BARS_OPTS.left, y: SH - LS * 0.4, "font-size": LS * 0.72 },
+        growLab,
+        chart("growth").unit.toUpperCase()
+      );
+
+      const BM = margBars(1);
+      const margLab = el("g", { opacity: 0 });
+      margin.forEach(([name, v], j) => {
+        el(
+          "text",
+          { class: "t-lab", x: MARG_OPTS.left, y: BM.yOf(j) - BM.rh * 0.3, "font-size": LS * 0.75 },
+          margLab,
+          name.toUpperCase()
+        );
+        el(
+          "text",
+          {
+            class: "t-num",
+            x: BM.X(v) + LS * 0.6,
+            y: BM.yOf(j) + LS * 0.38,
+            "font-size": LS * 1.05,
+          },
+          margLab,
+          fmt(v) + " TWh"
+        );
+      });
+      el(
+        "text",
+        { class: "t-axis", x: MARG_OPTS.left, y: SH - LS * 0.2, "font-size": LS * 0.75 },
+        margLab,
+        `${chart("margin").unit}. Lead over coal: ${fmt(margin[0][1] - margin[1][1])} TWh.`
+      );
+
+      /* ---------------- Live marks (redrawn each frame) ---------------- */
+      const spineA = el("path", { class: "spine-a" }),
+        spineB = el("path", { class: "spine-b" });
+      const ribEls = Array.from({ length: 2 * N }, () => ({
+        dot: el("path", { class: "rib-dot", "stroke-dasharray": "1.2 3.2" }),
+        bar: el("path", { class: "rib-bar" }),
+      }));
+      const tipEls = Array.from({ length: 2 * N }, () => ({
+        halo: el("circle", { class: "halo", filter: "url(#oc-glow)" }),
+        tip: el("circle", { class: "tip" }),
+      }));
+
+      const path = (pts) =>
+        "M" + pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" L");
+      const ribPath = (r) => {
+        const mx = (r.x1 + r.x2) / 2,
+          my = (r.y1 + r.y2) / 2,
+          dx = r.x2 - r.x1,
+          dy = r.y2 - r.y1;
+        const cx = mx - dy * r.bend,
+          cy = my + dx * r.bend;
+        return `M${r.x1.toFixed(1)},${r.y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${r.x2.toFixed(1)},${r.y2.toFixed(1)}`;
+      };
+      function fishTransform(o) {
+        // matrix that maps home coordinates onto the fish pose (labels and texture follow the fish)
+        return `translate(${o.cx} ${o.cy}) scale(${o.flip * o.s} ${o.s}) translate(${-hx} ${-hy})`;
+      }
+      // Label visibility windows: fade in once the chart has formed, out when the next transition starts
+      const win = (t, inAt, outAt) =>
+        Math.min(seg(t, inAt, inAt + 0.4), 1 - seg(t, outAt, outAt + 0.3));
+      const stageEl = document.getElementById("ocean-stage");
+      function draw(t) {
+        const G = state(t);
+        stageEl.style.transform = SHIFT ? `translateX(${(sideAt(t) * SHIFT).toFixed(1)}px)` : "";
+        spineA.setAttribute("d", path(G.spineA));
+        spineA.setAttribute("stroke-width", G.aw.toFixed(2));
+        spineA.setAttribute("opacity", G.aop.toFixed(3));
+        spineB.setAttribute("d", path(G.spineB));
+        spineB.setAttribute("stroke-width", G.bw.toFixed(2));
+        spineB.setAttribute("opacity", G.bop.toFixed(3));
+        spineB.setAttribute("stroke-dasharray", G.bdash ? "1 5" : "9 7");
+        spineB.setAttribute("stroke", G.bdash ? "var(--cur-ink)" : "var(--ser-2)");
+        G.ribs.forEach((r, i) => {
+          const d = ribPath(r),
+            e = ribEls[i];
+          e.dot.setAttribute("d", d);
+          e.dot.setAttribute("stroke-width", Math.max(0.6, Math.min(r.dw, 1.6)).toFixed(2));
+          e.dot.setAttribute("opacity", r.dop.toFixed(3));
+          e.bar.setAttribute("d", d);
+          e.bar.setAttribute("stroke-width", r.bw.toFixed(2));
+          e.bar.setAttribute("opacity", r.bop.toFixed(3));
+          if (r.col) e.bar.setAttribute("stroke", r.col);
+        });
+        // Breathing: a light pulse runs down the rib tips from tail to head every 3.6 s (holds only)
+        const pulse = ((t % 3.6) / 3.6) * (N + 8) - 4;
+        G.dots.forEach((d, i) => {
+          const e = tipEls[i],
+            col = i >> 1;
+          const glow = d.op * (0.18 + 0.5 * Math.exp(-((col - pulse) ** 2) / 6));
+          e.tip.setAttribute("cx", d.x.toFixed(1));
+          e.tip.setAttribute("cy", d.y.toFixed(1));
+          e.tip.setAttribute("r", d.r.toFixed(2));
+          e.tip.setAttribute("opacity", d.op.toFixed(3));
+          e.halo.setAttribute("cx", d.x.toFixed(1));
+          e.halo.setAttribute("cy", d.y.toFixed(1));
+          e.halo.setAttribute("r", (d.r * 2.3).toFixed(2));
+          e.halo.setAttribute("opacity", glow.toFixed(3));
+        });
+        // Texture and fish labels follow the fish pose (home before the first swim, centre at the end)
+        const atEnd = t >= T[4] + 0.3;
+        fishG.setAttribute("transform", fishTransform(atEnd ? END : HOME));
+        const fishVis = t < T[0] ? 1 - seg(t, T[0], T[0] + 0.3) : seg(t, T[4] + 0.3, T[4] + 0.8);
+        const texVis = t < T[0] ? openP(t) * (1 - seg(t, T[0], T[0] + 0.4)) : endP(t); // texture grows with the sweep, as in the opening
+        fishG.setAttribute("opacity", (fishVis * texVis).toFixed(3));
+        // CLEAN / FOSSIL and the years arrive as the sweep reaches 2025 (site: p 0.85 → 1)
+        const labVis = t < T[0] ? seg(openP(t), 0.85, 1) * (1 - seg(t, T[0], T[0] + 0.3)) : seg(endP(t), 0.85, 1); // years and endpoint labels as the sweep reaches 2025, as in the opening
+        fishLab.setAttribute("opacity", labVis.toFixed(3));
+        crossLab.setAttribute("opacity", win(t, T[0] + 1.15, T[1]).toFixed(3));
+        growLab.setAttribute("opacity", win(t, T[1] + 1.3, T[2]).toFixed(3));
+        solLab.setAttribute("opacity", win(t, T[2] + 1.3, T[3]).toFixed(3));
+        margLab.setAttribute("opacity", win(t, T[3] + 1.3, T[4]).toFixed(3));
+        // Ring closes on the 2025 crossover point once the lines meet
+        const rr = easeOut(seg(t, T[0] + 1.3, T[0] + 1.75)) * (1 - seg(t, T[1], T[1] + 0.3));
+        const P = lines(cross, 15, 45, 1).spineA[L];
+        ring.setAttribute("cx", P[0]);
+        ring.setAttribute("cy", P[1]);
+        ring.setAttribute("r", (16 * rr).toFixed(2));
+        ring.setAttribute("opacity", rr.toFixed(3));
+      }
+
+      /* ---------------- Timeline: one tween drives draw(t), so any seek is exact ---------------- */
+      const clock = { t: 0 };
+      const tl = gsap.timeline({ paused: true });
+      tl.to(clock, { t: 43.2, duration: 43.2, ease: "none", onUpdate: () => draw(clock.t) }, 0);
+      draw(0);
+      window.__timelines["ocean"] = tl;
+    })();
+  </script>
+</template>

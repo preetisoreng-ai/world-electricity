@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="theme-data radius-round-2">
+<html lang="en" class="theme-data dark theme-current radius-round-2" data-craft="flow">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -14,6 +14,9 @@
           document.documentElement.classList.add("motion");
       } catch (e) {}
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../shared/data.css" />
     <link rel="stylesheet" href="../shared/motion.css" />
     <link rel="stylesheet" href="assets/base.css" />
@@ -21,8 +24,11 @@
     <script src="assets/tested-data.js" defer></script>
     <script src="../shared/motion.js" defer></script>
     <script src="assets/tested.js" defer></script>
+    <script src="../shared/craft.js" defer></script>
       <link rel="stylesheet" href="../shared/topbar.css" />
     <link rel="stylesheet" href="../shared/topbar-brand.css" />
+    <link rel="stylesheet" href="../shared/current.css" />
+    <link rel="stylesheet" href="../shared/craft.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -50,6 +56,7 @@
 
     <main id="main">
       <section class="hero" id="top">
+        <p class="meta-row"><span>Ember / World electricity</span><span>Pressure test · 2000—2025</span></p>
         <h1>The crossover is real, but it’s thin and it rests on hydro.</h1>
         <p class="dek">
           We tried to break the original findings. Renewables did generate more than coal in 2025,
@@ -96,6 +103,7 @@
 
       <section class="section wrap" id="changes" aria-labelledby="changes-title">
         <div class="section-copy">
+          <p class="kicker-num">01 / What changed</p>
           <h2 id="changes-title">The headline stays, with softer wording.</h2>
           <p>
             Each row shows what the Original page said, how it fared, and the wording the dashboard
@@ -116,7 +124,7 @@
                 <th scope="col">Wording from now on</th>
               </tr>
             </thead>
-            <tbody id="claimRows"></tbody>
+            <tbody id="claimRows" data-cr-in data-cr-stagger="45"></tbody>
           </table>
         </div>
       </section>
@@ -124,6 +132,7 @@
       <section class="section tint" id="margin" aria-labelledby="margin-title">
         <div class="wrap">
           <div class="section-copy">
+            <p class="kicker-num">02 / Revision test</p>
             <h2 id="margin-title">How big a revision would undo the crossover?</h2>
             <p>
               Ember’s latest year is often revised. Slide to lower the 2025 renewables figure and
@@ -159,6 +168,7 @@
 
       <section class="section wrap" id="hydro" aria-labelledby="hydro-title">
         <div class="section-copy">
+          <p class="kicker-num">03 / Hydro test</p>
           <h2 id="hydro-title">Take out hydro and renewables are far behind coal.</h2>
           <p>
             Hydropower is <strong data-bind="hydroShare">13.9%</strong> of world electricity and
@@ -182,7 +192,7 @@
               </div>
             </div>
             <svg
-              id="stackChart"
+              id="stackChart" data-cr-reveal="left"
               class="chart"
               viewBox="0 0 520 220"
               role="img"
@@ -193,7 +203,7 @@
                 33.2%.
               </desc>
             </svg>
-            <p class="legend">
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="key renew"></span>Hydro</span>
               <span><span class="key renew-light"></span>Wind, solar and other renewables</span>
               <span><span class="key compare"></span>Coal</span>
@@ -210,7 +220,7 @@
             </div>
             <div class="chart-wrap scroll">
               <svg
-                id="dryChart"
+                id="dryChart" data-cr-reveal="up"
                 class="chart"
                 viewBox="0 0 520 260"
                 role="img"
@@ -223,7 +233,7 @@
               </svg>
               <div class="tooltip" id="dryTip" role="status" aria-live="polite" hidden></div>
             </div>
-            <p class="legend">
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="key renew"></span>Renewables still ahead</span>
               <span><span class="key compare"></span>Coal would stay ahead</span>
             </p>
@@ -234,6 +244,7 @@
       <section class="section tint" id="precedent" aria-labelledby="prec-title">
         <div class="wrap">
           <div class="section-copy">
+            <p class="kicker-num">04 / Precedent test</p>
             <h2 id="prec-title">Coal has fallen in a growing year before, and come back.</h2>
             <p>
               Coal generation fell while demand grew in 2015 and 2019, by far more than in 2025.
@@ -253,7 +264,7 @@
             </div>
             <div class="chart-wrap scroll">
               <svg
-                id="coalChart"
+                id="coalChart" data-cr-reveal="down"
                 class="chart"
                 viewBox="0 0 760 320"
                 role="img"
@@ -266,7 +277,7 @@
               </svg>
               <div class="tooltip" id="coalTip" role="status" aria-live="polite" hidden></div>
             </div>
-            <p class="legend">
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="key compare"></span>Coal fell while demand grew</span>
               <span><span class="key other"></span>Other years</span>
             </p>
@@ -276,6 +287,7 @@
 
       <section class="section wrap" id="checks" aria-labelledby="checks-title">
         <div class="section-copy">
+          <p class="kicker-num">05 / All checks</p>
           <h2 id="checks-title">Every check we ran.</h2>
         </div>
         <div class="checks-scroll">
@@ -290,14 +302,14 @@
                 <th scope="col">Effect on the finding</th>
               </tr>
             </thead>
-            <tbody id="checkRows"></tbody>
+            <tbody id="checkRows" data-cr-in data-cr-stagger="45"></tbody>
           </table>
         </div>
       </section>
 
       <section class="section method" id="method" aria-labelledby="method-title">
         <div class="wrap method-grid">
-          <div><h2 id="method-title">What we still can’t answer.</h2></div>
+          <div><p class="kicker-num">06 / Still unresolved</p><h2 id="method-title">What we still can’t answer.</h2></div>
           <div class="method-copy">
             <p>
               <strong>Strongest supported conclusion.</strong> In Ember’s 2025 figures, clean

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "locked_at": "2026-11-05T09:19:34+00:00",
+  "content_sha256": "cda237b0b9b8041e2a7454fb9ead45b83565f84b955540c36a04078beecd1049",
+  "sources": {
+    "data/processed/findings.json": "d71b38cbaf92cef54f8cde8adc7ab15caa09292822a1bbac37b81924fe042a75",
+    "data/processed/pressure-test.json": "bc9e11a6a54f99df3fab34026ee59c7f43fbdf5d06d0ac2ef52388755140f33d",
+    "data/raw/ember_yearly_electricity-generation - All electricity sources - World - breakdown.csv": "b8134b1c34fff0c4a5a1618854f4bbdb1cac261a86d4a89a171761c6c4fe8b70",
+    "site/data-story/index.html": "b35270da51c8a252325d0064065e2a585dc0e721d114b15d57c03a79501bd5c8",
+    "site/tested/index.html": "bad3070643b262f9c0cd4784e5454309b0cfad319465d9938539486d7a4cbe16"
+  }
+}

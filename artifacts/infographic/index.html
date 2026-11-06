@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en" class="theme-data dark theme-current">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>The Current Beneath</title>
+    <meta
+      name="description"
+      content="Infographic: world electricity 2000–2025 from Ember. Clean power grew faster than demand in 2025 and renewables, led by hydro, edged past coal by a narrow margin."
+    />
+    <!-- Design language: the site's own tokens and design guide (layout only here, no new look) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../site/shared/data.css" />
+    <link rel="stylesheet" href="../../site/shared/current.css" />
+    <script src="content.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        overflow: hidden;
+        background: var(--cur-bg);
+        color: var(--cur-body);
+        font-family: var(--cur-font);
+      }
+      p,
+      h1,
+      h2 {
+        margin: 0;
+      }
+      /* The window is the canvas: 1920x1080, 1080x1350, 1080x1080, 1080x1920 (or any browser size) */
+      .sheet {
+        position: absolute;
+        inset: 0;
+        padding: var(--pad-y) var(--pad-x);
+        display: grid;
+        gap: var(--gap);
+        align-content: start;
+      }
+      .meta {
+        flex-wrap: wrap;
+        row-gap: 0.4em;
+        display: flex;
+        justify-content: space-between;
+        gap: 2vmin;
+        padding-bottom: calc(var(--gap) * 0.6);
+        border-bottom: 1px solid var(--cur-hair);
+        font-size: var(--f-label);
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--cur-body);
+      }
+      .meta span:last-child {
+        font-weight: 400;
+        color: var(--cur-muted);
+      }
+      h1 {
+        font-size: var(--f-title);
+        line-height: 0.98;
+        letter-spacing: -0.045em;
+        font-weight: 700;
+        color: var(--cur-ink);
+      }
+      .dek {
+        font-size: var(--f-dek);
+        line-height: 1.32;
+        color: var(--cur-body);
+        max-width: 48ch;
+      }
+      .lab {
+        font-size: var(--f-label);
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--cur-body);
+      }
+      .val {
+        font-size: var(--f-value);
+        line-height: 1;
+        letter-spacing: -0.035em;
+        font-weight: 700;
+        color: var(--cur-ink);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .line {
+        font-size: var(--f-body);
+        line-height: 1.3;
+        color: var(--cur-ink);
+      }
+      .note {
+        font-size: var(--f-note);
+        line-height: 1.38;
+        color: var(--cur-body);
+      }
+      .rule {
+        border-top: 1px solid var(--cur-hair);
+      }
+      .chart {
+        border-top: 1px solid var(--cur-hair);
+        padding-top: calc(var(--gap) * 0.6);
+        display: grid;
+        gap: calc(var(--gap) * 0.4);
+      }
+      .plot {
+        height: var(--chart-h);
+        position: relative;
+      }
+      .plot svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+      .cells {
+        display: grid;
+        gap: var(--gap) calc(var(--gap) * 1.4);
+      }
+      .cell {
+        display: grid;
+        align-content: start;
+        gap: calc(var(--gap) * 0.32);
+        border-top: 1px solid var(--cur-hair);
+        padding-top: calc(var(--gap) * 0.6);
+      }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        gap: 2vmin;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--cur-hair);
+        padding-top: calc(var(--gap) * 0.5);
+        font-size: var(--f-note);
+        color: var(--cur-muted);
+      }
+      .foot b {
+        color: var(--cur-ink);
+        font-weight: 600;
+      }
+      /* SVG marks (same as the story's two-currents chart) */
+      .t-axis {
+        fill: var(--cur-muted);
+        font: 500 var(--f-axis) var(--cur-font);
+      }
+      .t-year {
+        fill: var(--cur-ink);
+        font: 500 var(--f-axis) var(--cur-font);
+      }
+      .t-lab {
+        fill: var(--cur-body);
+        font: 700 var(--f-axis) var(--cur-font);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .t-val {
+        fill: var(--cur-ink);
+        font: 700 var(--f-endval) var(--cur-font);
+        letter-spacing: -0.02em;
+      }
+      .g-rule {
+        stroke: var(--cur-hair);
+        stroke-dasharray: 1 5;
+      }
+      .g-center {
+        stroke: var(--cur-hair-strong);
+      }
+      .thread {
+        fill: none;
+        stroke: var(--cur-ink);
+        stroke-width: 1.3;
+        stroke-dasharray: 1.2 3.2;
+        stroke-linecap: round;
+        opacity: 0.85;
+      }
+      .texture {
+        fill: none;
+        stroke: var(--cur-ink);
+        stroke-width: 0.9;
+        stroke-dasharray: 0.9 3;
+        stroke-linecap: round;
+        opacity: 0.26;
+      }
+      .endpoint {
+        fill: var(--cur-ink);
+      }
+      .halo {
+        fill: var(--cur-ink);
+        opacity: 0.22;
+      }
+
+      /* Wide: header, title, chart across, four insight columns */
+      @media (min-aspect-ratio: 13/10) {
+        .sheet {
+          --pad-x: 6vw;
+          --pad-y: 5vh;
+          --gap: 2.2vh;
+          --f-title: 7vh;
+          --f-dek: 2.5vh;
+          --f-label: 1.25vh;
+          --f-value: 5.2vh;
+          --f-body: 2.25vh;
+          --f-note: 1.9vh;
+          --f-axis: 1.25vh;
+          --f-endval: 2.6vh;
+          --chart-h: 31vh;
+        }
+        .cells {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      /* Square and 4:5: stacked, 2 × 2 insights */
+      @media (max-aspect-ratio: 13/10) and (min-aspect-ratio: 7/10) {
+        .sheet {
+          --pad-x: 6.5vw;
+          --pad-y: 4.6vh;
+          --gap: 1.9vmin;
+          --f-title: 6.4vmin;
+          --f-dek: 2.7vmin;
+          --f-label: 1.55vmin;
+          --f-value: 5.4vmin;
+          --f-body: 2.65vmin;
+          --f-note: 2.25vmin;
+          --f-axis: 1.5vmin;
+          --f-endval: 2.8vmin;
+          --chart-h: 20vmin;
+        }
+        .cells {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-aspect-ratio: 9/10) and (min-aspect-ratio: 7/10) {
+        .sheet {
+          --pad-y: 6vh;
+          --gap: 2.2vmin;
+          --chart-h: 26vmin;
+          --f-title: 7vmin;
+        }
+      }
+      /* Tall 9:16: stacked, larger type, 2 × 2 insights */
+      @media (max-aspect-ratio: 7/10) {
+        .sheet {
+          --pad-x: 7vw;
+          --pad-y: 7vh;
+          --gap: 2.6vw;
+          --f-title: 9.6vw;
+          --f-dek: 3.5vw;
+          --f-label: 2.1vw;
+          --f-value: 7.4vw;
+          --f-body: 3.1vw;
+          --f-note: 2.65vw;
+          --f-axis: 2vw;
+          --f-endval: 3.6vw;
+          --chart-h: 52vw;
+        }
+        .cells {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .meta span {
+        white-space: nowrap;
+      }
+      /* Square: tighter chart and gaps so everything fits with ≥28 px body text */
+      @media (max-aspect-ratio: 11/10) and (min-aspect-ratio: 9/10) {
+        .sheet {
+          --pad-y: 4vh;
+          --gap: 1.5vmin;
+          --chart-h: 15vmin;
+          --f-title: 5.6vmin;
+          --f-dek: 2.6vmin;
+          --f-value: 4.8vmin;
+          --f-body: 2.65vmin;
+          --f-note: 2.2vmin;
+        }
+      }
+      @media (max-aspect-ratio: 7/10) {
+        .meta {
+          letter-spacing: 0.12em;
+        }
+      }
+      /* Fitted sizes (measured so every format holds all locked content without overflow;
+         body text ≥ 28 px on 1080-wide canvases) */
+      @media (min-aspect-ratio: 13/10) {
+        .sheet {
+          --pad-y: 4.2vh;
+          --gap: 1.8vh;
+          --f-title: 6.4vh;
+          --f-dek: 2.4vh;
+          --chart-h: 27vh;
+          --f-value: 4.8vh;
+          --f-body: 2.2vh;
+          --f-note: 1.85vh;
+        }
+      }
+      @media (max-aspect-ratio: 9/10) and (min-aspect-ratio: 7/10) {
+        .sheet {
+          --pad-y: 5vh;
+          --gap: 1.7vmin;
+          --f-title: 5.4vmin;
+          --f-dek: 2.65vmin;
+          --chart-h: 18.5vmin;
+          --f-value: 4.6vmin;
+          --f-body: 2.65vmin;
+          --f-note: 2.15vmin;
+          --f-label: 1.4vmin;
+        }
+      }
+      @media (max-aspect-ratio: 11/10) and (min-aspect-ratio: 9/10) {
+        .sheet {
+          --pad-y: 3.6vh;
+          --gap: 1.15vmin;
+          --f-title: 4.7vmin;
+          --f-dek: 2.65vmin;
+          --chart-h: 10vmin;
+          --f-value: 4vmin;
+          --f-body: 2.65vmin;
+          --f-note: 2.05vmin;
+          --f-label: 1.3vmin;
+        }
+      }
+      @media (max-aspect-ratio: 7/10) {
+        .sheet {
+          --pad-y: 5.5vh;
+          --gap: 1.9vw;
+          --f-title: 7.4vw;
+          --f-dek: 3vw;
+          --chart-h: 28vw;
+          --f-value: 5.8vw;
+          --f-body: 2.9vw;
+          --f-note: 2.6vw;
+          --f-label: 1.9vw;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="sheet" id="sheet">
+      <p class="meta"><span id="kicker"></span><span id="period"></span></p>
+      <h1 id="title"></h1>
+      <p class="dek" id="dek"></p>
+      <section class="chart" aria-labelledby="c-lab">
+        <p class="lab" id="c-lab"></p>
+        <div class="plot" id="plot">
+          <svg id="currents" role="img" aria-labelledby="c-desc"><desc id="c-desc"></desc></svg>
+        </div>
+        <p class="note" id="c-note"></p>
+      </section>
+      <section class="cells" id="cells"></section>
+      <p class="foot">
+        <span id="src"></span><span><b id="site"></b></span>
+      </p>
+    </main>
+    <script>
+      (() => {
+        const C = window.EM_CONTENT;
+        const $ = (s) => document.querySelector(s);
+        if (!C) {
+          document.body.textContent =
+            "content.js missing: run node artifacts/tools/build-assets.mjs";
+          return;
+        }
+        const byId = Object.fromEntries(C.insights.map((i) => [i.id, i]));
+        const chart = (id) => C.charts.find((c) => c.id === id);
+        $("#kicker").textContent = C.kicker;
+        $("#period").textContent = C.period;
+        $("#title").textContent = C.title;
+        $("#dek").textContent = C.dek;
+        $("#src").textContent = C.source_line + " · " + C.notes.join(" ");
+        $("#site").textContent = C.site.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        const cur = byId.currents;
+        $("#c-lab").textContent = cur.label;
+        $("#c-note").textContent = `${cur.value} ${cur.line}. ${cur.note}`;
+        // Four insight cells (everything after the cover insight), text exactly as locked
+        $("#cells").innerHTML = C.insights
+          .filter((i) => i.id !== C.cover_insight)
+          .map(
+            (i) =>
+              `<article class="cell"><p class="lab"></p><p class="val"></p><p class="line"></p><p class="note"></p></article>`
+          )
+          .join("");
+        [...document.querySelectorAll(".cell")].forEach((el, k) => {
+          const i = C.insights.filter((x) => x.id !== C.cover_insight)[k];
+          const [lab, val, line, note] = el.children;
+          lab.textContent = i.label;
+          val.textContent = i.value;
+          line.textContent = i.line;
+          note.textContent = i.note;
+        });
+
+        /* Two currents, drawn at the SVG's real pixel size */
+        const svg = $("#currents"),
+          NS = "http://www.w3.org/2000/svg";
+        const el = (t, a, p, txt) => {
+          const n = document.createElementNS(NS, t);
+          for (const k in a) n.setAttribute(k, a[k]);
+          if (txt != null) n.textContent = txt;
+          (p || svg).append(n);
+          return n;
+        };
+        const rows = chart("currents").rows,
+          N = rows.length,
+          Lx = N - 1;
+        const box = document.getElementById("plot").getBoundingClientRect();
+        const W = box.width,
+          H = box.height;
+          const compact = H < 170; // short chart (square canvas): simplified labels
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        const fs =
+          parseFloat(
+            getComputedStyle(document.querySelector(".sheet")).getPropertyValue("--f-axis")
+          ) || 12;
+        const axisPx =
+          parseFloat(getComputedStyle(svg.querySelector("desc") ? svg : svg).fontSize) || 12;
+        void fs;
+        void axisPx;
+        const probe = el("text", { class: "t-val", x: -999, y: -999 }, svg, "18,418");
+        const endW = probe.getBBox().width;
+        probe.remove();
+        const m = { l: W * 0.05, r: endW * (compact ? 1.55 : 1) + W * 0.04, t: H * 0.06, b: H * 0.06 };
+        const UP = 15000,
+          DOWN = 20000,
+          k = (H - m.t - m.b) / (UP + DOWN),
+          c = m.t + UP * k;
+        const x = (i) => m.l + (i / Lx) * (W - m.l - m.r);
+        const yU = (v) => c - v * k,
+          yD = (v) => c + v * k;
+        const band = (W - m.l - m.r) / Lx;
+        const f = el(
+          "filter",
+          { id: "g", x: "-200%", y: "-200%", width: "500%", height: "500%" },
+          el("defs", {})
+        );
+        el("feGaussianBlur", { stdDeviation: "2.6" }, f);
+        [
+          [5000, yU],
+          [10000, yU],
+          [5000, yD],
+          [10000, yD],
+          [15000, yD],
+        ].forEach(([v, y]) => {
+          el("line", { class: "g-rule", x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) });
+          // The lower 5k label sits on the year labels, and a short chart has no room for numbers
+          if (compact || (v === 5000 && y === yD)) return;
+          el(
+            "text",
+            { class: "t-axis", x: m.l - 6, y: y(v) + 4, "text-anchor": "end" },
+            svg,
+            v / 1000 + "k"
+          );
+        });
+        el("line", { class: "g-center", x1: m.l, x2: W - m.r, y1: c, y2: c });
+        const lerp = (a, b, t) => a + (b - a) * t;
+        const thread = (xc, y0, y1, amp, ph) =>
+          "M" +
+          Array.from({ length: 25 }, (_, s) => {
+            const t = s / 24;
+            return `${(xc + Math.sin(ph + t * Math.PI * 1.6) * amp * Math.sin(Math.PI * t)).toFixed(1)},${lerp(y0, y1, t).toFixed(1)}`;
+          }).join(" L");
+        const lens = (xc, y0, y1, w, j, ph) =>
+          "M" +
+          Array.from({ length: 25 }, (_, s) => {
+            const t = s / 24;
+            return `${(xc + Math.sin(Math.PI * t) * w * (j / 3) + Math.sin(ph + j + t * 5) * 1.2).toFixed(1)},${lerp(y0, y1, t).toFixed(1)}`;
+          }).join(" L");
+        rows.forEach(([yr, clean, fossil], i) => {
+          const xc = x(i),
+            ph = i * 1.7,
+            w = band * 0.42;
+          for (let j = -3; j <= 3; j++)
+            if (j) {
+              el("path", { class: "texture", d: lens(xc, c, yU(clean), w, j, ph) });
+              el("path", { class: "texture", d: lens(xc, c, yD(fossil), w, j, ph + 1) });
+            }
+          el("path", {
+            class: "thread",
+            d: thread(xc, c, yU(clean), Math.min(4, band * 0.18), ph),
+          });
+          el("path", {
+            class: "thread",
+            d: thread(xc, c, yD(fossil), Math.min(4, band * 0.18), ph + 2),
+          });
+          const r = i === Lx ? Math.max(3.5, band * 0.16) : Math.max(2.2, band * 0.1);
+          [yU(clean), yD(fossil)].forEach((yy) => {
+            el("circle", { class: "halo", cx: xc, cy: yy, r: r * 2.2, filter: "url(#g)" });
+            el("circle", { class: "endpoint", cx: xc, cy: yy, r });
+          });
+          if (yr % 5 === 0)
+            el(
+              "text",
+              {
+                class: "t-year",
+                x: xc,
+                y: c + 4 + parseFloat(getComputedStyle(document.documentElement).fontSize) * 0,
+                "text-anchor": "middle",
+                dy: "1.2em",
+              },
+              svg,
+              yr
+            );
+        });
+        const last = rows[Lx],
+          lx = x(Lx) + 10;
+        if (compact) {
+          // Short chart (square canvas): one line each, "CLEAN 13,507" at the top edge and "FOSSIL 18,418" at the bottom
+          const one = (yy, dy, lab, val) => {
+            const t = el("text", { class: "t-lab", x: lx, y: yy, dy }, svg);
+            el("tspan", {}, t, lab + " ");
+            el("tspan", { style: "fill: var(--cur-ink); letter-spacing: 0; font-size: 1.35em" }, t, val);
+          };
+          one(0, "0.6em", "Clean", Math.round(last[1]).toLocaleString("en-US"));
+          one(H, "0.3em", "Fossil", Math.round(last[2]).toLocaleString("en-US"));
+        } else {
+          el("text", { class: "t-lab", x: lx, y: yU(last[1]) - 6 }, svg, "Clean");
+          el(
+            "text",
+            { class: "t-val", x: lx, y: yU(last[1]), dy: "1em" },
+            svg,
+            Math.round(last[1]).toLocaleString("en-US")
+          );
+          el("text", { class: "t-lab", x: lx, y: yD(last[2]) - 6 }, svg, "Fossil");
+          el(
+            "text",
+            { class: "t-val", x: lx, y: yD(last[2]), dy: "1em" },
+            svg,
+            Math.round(last[2]).toLocaleString("en-US")
+          );
+        }
+        $("#c-desc").textContent =
+          `Two currents, ${rows[0][0]} to ${last[0]}: clean generation above the centreline rises from ${Math.round(rows[0][1]).toLocaleString("en-US")} to ${Math.round(last[1]).toLocaleString("en-US")} TWh; fossil below rises from ${Math.round(rows[0][2]).toLocaleString("en-US")} to ${Math.round(last[2]).toLocaleString("en-US")} TWh.`;
+      })();
+    </script>
+    <script>
+      // ?qa: overflow beyond the canvas, the 15–85% box for title and key numbers, and minimum text size,
+      // reported into <body data-qa> (read by tools/render.mjs)
+      if (new URLSearchParams(location.search).has("qa"))
+        addEventListener("load", () =>
+          setTimeout(() => {
+            const W = innerWidth,
+              H = innerHeight,
+              bad = [];
+            document.querySelectorAll(".sheet > *").forEach((e) => {
+              const r = e.getBoundingClientRect();
+              if (r.bottom > H + 1 || r.right > W + 1)
+                bad.push(
+                  "overflow:" + (e.id || e.className) + "@" + Math.round(r.bottom) + "/" + H
+                );
+            });
+            const box = (e) => {
+              const r = e.getBoundingClientRect();
+              return (
+                r.left >= W * 0.15 - 1 &&
+                r.right <= W * 0.85 + 1 &&
+                r.top >= H * 0.15 - 1 &&
+                r.bottom <= H * 0.85 + 1
+              );
+            };
+            const keyOut = [...document.querySelectorAll("#title, .cell .val")].filter(
+              (e) => !box(e)
+            ).length;
+            const minLine = Math.min(
+              ...[...document.querySelectorAll(".line, .dek")].map((e) =>
+                parseFloat(getComputedStyle(e).fontSize)
+              )
+            );
+            const minNote = Math.min(
+              ...[...document.querySelectorAll(".note, .foot")].map((e) =>
+                parseFloat(getComputedStyle(e).fontSize)
+              )
+            );
+            document.body.setAttribute(
+              "data-qa",
+              (bad.length ? "OVERFLOW " + bad.join(" ") : "OK") +
+                ` | key-outside-15-85=${keyOut} | body=${minLine.toFixed(1)}px note=${minNote.toFixed(1)}px`
+            );
+          }, 400)
+        );
+    </script>
+  </body>
+</html>

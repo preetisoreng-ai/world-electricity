@@ -27,3 +27,9 @@ Page: `site/dashboard/index.html` (assets: `dashboard.css` from the house dashbo
 
 ## Test-environment note
 As on the earlier pages, the automated browser cancelled the page's last script on first load; the identical file loads normally when requested again. Tested with the script re-requested; page code unaffected.
+
+## Revision 2026-11-05: "current" design
+- New shared design guide `site/shared/current.css` loaded last on all four pages (`<html class="theme-data dark theme-current">`). Data tokens still load; the monochrome palette is a reviewer-requested exception, documented in the file.
+- Monochrome series are never colour-only: solid / dashed / dotted line styles plus direct labels; source tones always come with a text label.
+- Checked in Chrome: all six story scenes step and render; Original, Tested and Dashboard restyled with numbered section labels and meta rows; token overrides verified to win over the Data dark tokens (specificity raised); story buttons legible; phone (375 px): no overflow on any page, top bar on one line, dashboard tabs fit, story steps fit their screens (max 280/330 px).
+- Not changed: any number, calculation, filter logic or claim wording beyond the story rewrite.

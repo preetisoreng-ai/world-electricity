@@ -37,6 +37,12 @@ story = {
     # Scene 6 (C9, C3, C7)
     "solar": [r["solar"] for r in Y], "solarX2015": F["growth"]["solarX2015"],
     "fossilPct": T["fossilPct"], "precedentYears": [p["year"] for p in T["precedents"] if p["year"] != F["last"]],
+    # Redesign ("current" design guide): two currents, solar vs wind, mix bars
+    "clean": [r["clean"] for r in Y], "fossil": [r["fossil"] for r in Y],
+    "wind": [r["wind"] for r in Y], "dSolarTwh": L["dSolar"], "dWind": L["dWind"],
+    "mix": F["mix"],
+    "change": [{"s": a["source"], "d": a["d"]} for a in T["attrib"]],  # 2024 → 2025 TWh by source
+    "gapLast": L["renewMinusCoalPts"],
 }
 (P / "story-data.json").write_text(json.dumps(story, indent=1), encoding="utf-8")
 out = ROOT / "site" / "data-story" / "assets"

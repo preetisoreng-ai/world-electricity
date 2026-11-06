@@ -1,0 +1,10 @@
+The current beneath the crossover. In 2025 clean power grew faster than world demand, and renewables, led by hydro, edged past coal for the first time.
+
+I turned Ember's world electricity data (2000–2025) into a data story, drawn as the skeleton of a fish in a dark ocean. The 43-second version:
+• 13,507 TWh clean generation in 2025, against 18,418 TWh fossil
+• 33.5% / 33.2%: renewables and coal, as shares of world electricity in 2025
+• +879 TWh clean generation added in 2025, against 855 TWh of total growth
+• 2,807 TWh solar generation, passing wind’s 2,705 TWh
+• 0.3 points: renewables’ lead over coal. A 0.44% revision or a dry hydro year would undo it. Without hydro, renewables are 19.6%. One year is not a trend.
+
+Watch it on any device: https://preetisoreng-ai.github.io/world-electricity/site/intro/

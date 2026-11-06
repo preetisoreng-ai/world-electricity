@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="en" class="theme-data dark radius-round-2">
+<html lang="en" class="theme-data dark theme-current radius-round-2">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="A scroll-driven data story from Ember's world electricity data: in 2025 clean power grew faster than demand and renewables, led by hydro, edged past coal for the first time, by a margin small enough to reverse."
+      content="The current beneath the crossover: Ember's world electricity data, 2000–2025. Clean power grew faster than demand in 2025 and renewables, led by hydro, edged past coal by a margin small enough to reverse."
     />
-    <title>Power Shift Story</title>
+    <title>The Current Beneath</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Newsreader:opsz,wght@6..72,400..600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../shared/data.css" />
@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="assets/story.css" />
     <link rel="stylesheet" href="../shared/topbar.css" />
     <link rel="stylesheet" href="../shared/topbar-brand.css" />
+    <link rel="stylesheet" href="../shared/current.css" />
+    <link rel="stylesheet" href="../shared/craft.css" />
     <script>
       document.documentElement.classList.add("js");
       try {
@@ -57,99 +59,106 @@
       <div class="steps">
         <section class="step" aria-labelledby="t-hero">
           <div class="copy">
-            <p class="kicker"><span class="place">World</span></p>
-            <h1 id="t-hero" class="display">The<br />power<br />shift</h1>
+            <p class="meta-row">
+              <span>Ember / World electricity</span><span>2000—2025 / 26 annual observations</span>
+            </p>
+            <h1 id="t-hero" class="display">The current beneath the crossover</h1>
             <p class="lede">
-              <span data-bind="total">31,925</span> TWh of electricity in
-              <span data-bind="last">2025</span> · <span data-bind="totalX">2.1</span>× the year
-              2000
+              Renewables edged past coal in <span data-bind="last">2025</span>. Total generation
+              reached <span data-bind="total">31,925</span> TWh,
+              <span data-bind="totalX">2.1</span>× the 2000 level.
             </p>
+            <p class="kicker-num">01 / The world’s electricity, in two currents</p>
             <p class="note">
-              Each spoke is one year, 2000 to 2025. Longer spokes mean more electricity generated
-              worldwide.
-            </p>
-            <p class="scroll-cue" aria-hidden="true">Scroll <span>↓</span></p>
-          </div>
-        </section>
-
-        <section class="step" aria-labelledby="t-growth">
-          <div class="copy">
-            <p class="big lavender" aria-hidden="true"><span id="solarNum">76</span>%</p>
-            <h2 id="t-growth" class="statement">
-              <span class="sr-only"><span data-bind="solarPct">76</span>% </span>of 2025’s new
-              demand for electricity was met by <span class="place">solar</span>
-            </h2>
-            <p class="note">
-              Demand rose <span data-bind="dTotal">855</span> TWh. Clean sources added
-              <span data-bind="dClean">879</span> TWh, more than all of it, so fossil generation
-              dipped slightly. One dot ≈ one percent of the year’s growth.
+              Each year has two bright endpoints: clean generation above the centreline, fossil
+              below, on a shared scale. Clean = renewables + nuclear.
             </p>
           </div>
         </section>
 
         <section class="step" aria-labelledby="t-cross">
           <div class="copy">
-            <p class="big lime" aria-hidden="true"><span id="renewNum">33.5</span>%</p>
+            <p class="kicker-num">02 / Renewables pass coal</p>
+            <p class="big" aria-hidden="true">
+              <span id="renewNum">33.5</span>% / <span data-bind="coalPct">33.2</span>%
+            </p>
             <h2 id="t-cross" class="statement">
-              <span class="sr-only"><span data-bind="renewPct">33.5</span>% </span>from
-              <span class="place">renewables</span>, just ahead of coal’s
-              <span data-bind="coalPct">33.2</span>%
+              <span class="sr-only"
+                ><span data-bind="renewPct">33.5</span>% and
+                <span data-bind="coalPct">33.2</span>%: </span
+              >Renewables and coal, respectively, in <span data-bind="last">2025</span>.
             </h2>
             <p class="note">
-              The first time in 26 years of data. Coal’s share peaked at
+              The first crossover in the 2000–2025 series, led by hydropower. Coal’s share peaked at
               <span data-bind="coalPeak">40.9</span>% in <span data-bind="coalPeakYear">2007</span>.
             </p>
           </div>
         </section>
 
-        <section class="step" aria-labelledby="t-hydro">
+        <section class="step" aria-labelledby="t-growth">
           <div class="copy">
-            <p class="kicker">Look inside “renewables”</p>
-            <h2 id="t-hydro" class="label">Hydropower carries<br />the crossover</h2>
-            <p class="statement small-statement">
-              Without hydro, renewables are <span data-bind="nonHydro">19.6</span>% of world power,
-              far behind coal.
-            </p>
-            <p class="note">
-              Wind and solar together are <span data-bind="windSolar">17.3</span>%. Hydro swings
-              with rainfall, so a dry year can move the result.
-            </p>
-          </div>
-        </section>
-
-        <section class="step" aria-labelledby="t-thin">
-          <div class="copy">
-            <p class="kicker">How solid is the lead?</p>
-            <h2 id="t-thin" class="label">Renewables minus coal,<br />share of world power</h2>
-            <figure class="mini">
-              <svg id="gapLine" viewBox="0 0 320 150" role="img" aria-labelledby="gapDesc">
-                <desc id="gapDesc">
-                  Renewables minus coal, percentage points: −19.4 in 2000, −21.5 in 2005, −20.2 in
-                  2010, −15.9 in 2015, −7.7 in 2020, +0.3 in 2025.
-                </desc>
-              </svg>
-            </figure>
-            <p class="note">
-              The gap closed over 15 years and only just turned positive. Ember’s latest year is
-              often revised; a dry year like <span data-bind="dryYear">2001</span> would also have
-              undone it.
-            </p>
-          </div>
-        </section>
-
-        <section class="step" aria-labelledby="t-close">
-          <div class="copy">
-            <p class="big lime" aria-hidden="true"><span id="solarX">11</span>×</p>
-            <h2 id="t-close" class="caps lime caps-xl">
-              <span class="sr-only"><span data-bind="solarXText">11</span> times </span>solar since
-              2015
+            <p class="kicker-num">03 / Clean supply covers growth</p>
+            <p class="big" aria-hidden="true">+<span id="cleanNum">879</span> TWh</p>
+            <h2 id="t-growth" class="statement">
+              <span class="sr-only">Plus <span data-bind="dClean">879</span> TWh. </span>Clean
+              generation rose <span data-bind="dClean">879</span> TWh against
+              <span data-bind="dTotal">855</span> TWh of total growth.
             </h2>
-            <p class="statement small-statement">
-              The shift is real and fast. One year is not yet a trend.
-            </p>
             <p class="note">
-              Fossil generation fell <span data-bind="fossilPct">0.1</span>% in 2025. Coal also fell
-              in <span data-bind="precedents">2015 and 2019</span>, then rose to new records.
+              Fossil generation dipped <span data-bind="dFossilAbs">24</span> TWh (<span
+                data-bind="fossilPct"
+                >−0.1</span
+              >%). It also fell in <span data-bind="precedents">2015 and 2019</span>, then rose to
+              new records.
+            </p>
+          </div>
+        </section>
+
+        <section class="step" aria-labelledby="t-solar">
+          <div class="copy">
+            <p class="kicker-num">04 / Solar overtakes wind</p>
+            <p class="big" aria-hidden="true"><span id="solarNum">2,807</span> TWh</p>
+            <h2 id="t-solar" class="statement">
+              <span class="sr-only"><span data-bind="solar">2,807</span> TWh. </span>Solar edged
+              past wind’s <span data-bind="wind">2,705</span> TWh.
+            </h2>
+            <p class="note">
+              It added <span data-bind="dSolar">646</span> TWh in
+              <span data-bind="last">2025</span>, or <span data-bind="solarPct">76</span>% of total
+              growth, and is <span data-bind="solarX">11</span>× its 2015 level.
+            </p>
+          </div>
+        </section>
+
+        <section class="step" aria-labelledby="t-mix">
+          <div class="copy">
+            <p class="kicker-num">05 / The generation mix</p>
+            <h2 id="t-mix" class="statement">
+              Twenty-five years moved about a fifth of the world’s power.
+            </h2>
+            <ul
+              class="mix-legend"
+              id="mixLegend"
+              aria-label="Share of world generation by source, 2000 to 2025"
+            ></ul>
+          </div>
+        </section>
+
+        <section class="step" aria-labelledby="t-margin">
+          <div class="copy">
+            <p class="kicker-num">06 / The margin is narrow</p>
+            <p class="big big-sm" aria-hidden="true">
+              <span id="gapNum">0.3</span> percentage points
+            </p>
+            <h2 id="t-margin" class="statement">
+              <span class="sr-only"><span data-bind="gap">0.3</span> percentage points. </span>A
+              small lead in one year. Revisions or lower hydropower output could change the result.
+            </h2>
+            <p class="note">
+              A <span data-bind="kFlip">0.44</span>% revision, or a dry year like
+              <span data-bind="dryYear">2001</span>, would undo it. Without hydro, renewables are
+              <span data-bind="nonHydro">19.6</span>% of world power. The dataset covers generation;
+              it gives no direct measure of emissions or the causes of the shift.
             </p>
             <p class="links">
               <a href="../dashboard/index.html">Explore the dashboard</a>
@@ -162,73 +171,69 @@
       <div class="viz">
         <figure class="viz-item">
           <svg
-            id="radial"
-            viewBox="-300 -300 600 600"
+            id="currents"
+            viewBox="0 0 900 600"
             role="img"
-            aria-label="Radial chart of world electricity generation per year, rising from 15,325 TWh in 2000 to 31,925 TWh in 2025."
-          ></svg>
-        </figure>
-        <figure class="viz-item dots-visual">
-          <p class="axis-label axis-top">Solar</p>
-          <p class="axis-label axis-bottom">Other clean sources</p>
-          <svg
-            id="dots"
-            viewBox="0 0 600 600"
-            role="img"
-            aria-label="Dot grid of 100 dots for 2025's demand growth: 76 lavender dots met by solar, 24 lime dots by other clean sources."
+            aria-label="Two currents, 2000 to 2025: clean generation drawn above a centreline grows from 5,408 to 13,507 TWh; fossil generation drawn below grows from 9,917 to 18,418 TWh."
           ></svg>
         </figure>
         <figure class="viz-item">
           <svg
             id="cross"
-            viewBox="0 0 600 600"
+            viewBox="0 0 800 560"
             role="img"
-            aria-label="Two lines, 2000 to 2025: coal's share in lime falls from 38.1% to 33.2%; renewables in lavender rise from 18.7% to 33.5%, crossing coal in 2025."
+            aria-label="Lines, 2000 to 2025: renewables share (solid) rises from 18.7% to 33.5%; coal share (dashed) falls from 38.1% to 33.2%, crossing in 2025."
           ></svg>
         </figure>
         <figure class="viz-item">
           <svg
-            id="bars"
-            viewBox="0 0 600 600"
+            id="change"
+            viewBox="0 0 800 560"
             role="img"
-            aria-label="Bars, 2025 TWh: renewables 10,702, coal 10,608, renewables without hydro 6,255."
+            aria-label="Change in generation by source, 2024 to 2025."
           ></svg>
-        </figure>
-        <figure class="viz-item">
-          <div class="panel" id="thinPanel">
-            <p class="panel-number" aria-hidden="true"><span id="thinNum">0.44</span>%</p>
-            <p class="panel-caption">Revision that would erase the lead</p>
-            <p class="sr-only">
-              Lowering renewables and raising coal by 0.44% would erase renewables' 2025 lead of 95
-              TWh.
-            </p>
-          </div>
         </figure>
         <figure class="viz-item">
           <svg
-            id="radialSolar"
-            viewBox="-300 -300 600 600"
+            id="solarWind"
+            viewBox="0 0 800 560"
             role="img"
-            aria-label="Radial chart of world solar generation per year, from 1 TWh in 2000 to 2,807 TWh in 2025."
+            aria-label="Lines, 2000 to 2025: wind (dashed) rises to 2,705 TWh; solar (solid) rises to 2,807 TWh, passing wind in 2025."
           ></svg>
         </figure>
-        <p class="signature">Ember data<br /><em>The power shift</em></p>
+        <figure class="viz-item">
+          <svg
+            id="mix"
+            viewBox="0 0 800 560"
+            role="img"
+            aria-label="Two stacked bars of world generation by source, 2000 and 2025."
+          ></svg>
+        </figure>
+        <figure class="viz-item">
+          <svg
+            id="margin"
+            viewBox="0 0 800 560"
+            role="img"
+            aria-label="Bars, 2025 TWh: renewables, coal, and renewables without hydro."
+          ></svg>
+        </figure>
       </div>
     </main>
 
     <footer class="foot">
       <p>
-        Source: Ember, yearly electricity generation, World, all sources, 2000–2025 (TWh).
-        Renewables = hydro, wind, solar, bioenergy and other renewables; clean = renewables +
-        nuclear; fossil = coal, gas and other fossil. The latest year may be revised. Sensitivity
-        figures show how much a revision or a dry hydro year would matter, not how likely either is.
-        Full method:
+        Source: Ember yearly electricity generation, World, all sources, 2000–2025. Renewables =
+        hydro, wind, solar, bioenergy, other renewables; clean = renewables + nuclear; fossil =
+        coal, gas, other fossil. The latest year may be revised; sensitivity figures show how much a
+        revision would matter, not how likely it is. Method:
         <a href="../tested/index.html">pressure test</a>.
       </p>
+      <p class="foot-sign">World Electricity Mix / Data story</p>
     </footer>
 
     <script src="assets/story-data.js"></script>
     <script src="../shared/motion.js" defer></script>
+    <script src="../shared/craft.js" defer></script>
     <script src="assets/story.js" defer></script>
   </body>
 </html>

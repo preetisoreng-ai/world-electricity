@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="theme-data radius-round-2">
+<html lang="en" class="theme-data dark theme-current radius-round-2">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -14,6 +14,9 @@
           document.documentElement.classList.add("motion");
       } catch (e) {}
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../shared/data.css" />
     <link rel="stylesheet" href="../shared/motion.css" />
     <link rel="stylesheet" href="assets/dashboard.css" />
@@ -22,6 +25,7 @@
     <script src="assets/dashboard.js" defer></script>
       <link rel="stylesheet" href="../shared/topbar.css" />
     <link rel="stylesheet" href="../shared/topbar-brand.css" />
+    <link rel="stylesheet" href="../shared/current.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to dashboard</a>
@@ -43,6 +47,7 @@
     </header>
 
     <main id="main" class="shell">
+      <p class="meta-row" style="margin:28px 0 0"><span>Ember / World electricity</span><span>Dashboard · 2000—2025</span></p>
       <div class="page-head">
         <div>
           <h1>World electricity mix</h1>

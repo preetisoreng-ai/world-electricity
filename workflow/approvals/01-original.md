@@ -6,7 +6,7 @@
 - HTML reviewed: yes
 - Decision: approved
 - Reviewer: preeti.soreng (project owner, via chat)
-- Reviewed at: 2026-11-05 (approval message in chat)
+- Reviewed at: 2026-11-05 (re-approved after redesign + scroll effects, approval message in chat)
 
 ## Review checklist
 
@@ -19,9 +19,19 @@
 
 ## Comments
 
+- 2026-11-05: Apply scroll-craft (github.com/nateherkai/scroll-craft) to the scroll animation; keep snapping; story + Original + Tested.
+
+- 2026-11-05: Rebuild the data story in the design language and palette of the reviewer's reference image, and update the other pages to the same design guide.
+
 - None; approved as built.
 
 ## Resolution
+
+- 2026-11-05: Reviewer approved the restyled pages and scroll effects.
+
+- 2026-11-05: scroll-craft style effects added via site/shared/craft.js + craft.css (own implementation, MIT reference credited). Awaiting re-review.
+
+- 2026-11-05: Redesign applied (site/shared/current.css; story rebuilt). Earlier approval superseded; awaiting re-review of the restyled page.
 
 - No changes requested.
 

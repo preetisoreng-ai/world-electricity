@@ -1,0 +1,344 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      container-type: size;
+      font-family: Inter, sans-serif;
+      color: var(--cur-body);
+    }
+    #root p,
+    #root h1 {
+      margin: 0;
+    }
+    /* The copy viewport: the page scrolls inside it, one block per insight */
+    #root .view {
+      position: absolute;
+      left: 15cqw;
+      top: 12cqh;
+      width: 31cqw;
+      height: 76cqh;
+    }
+    #root .page {
+      position: absolute;
+      inset: 0;
+    }
+    #root .blk {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.6cqh;
+    }
+    #root .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 1em;
+      padding-bottom: 0.9em;
+      border-bottom: 1px solid var(--cur-hair);
+      font-size: 1.15cqh;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cur-body);
+    }
+    #root .meta span:last-child {
+      font-weight: 400;
+      color: var(--cur-muted);
+    }
+    #root .title {
+      font-size: 6.4cqh;
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+      font-weight: 700;
+      color: var(--cur-ink);
+    }
+    #root .dek {
+      font-size: 2.3cqh;
+      line-height: 1.35;
+      color: var(--cur-body);
+    }
+    #root .lab {
+      font-size: 1.35cqh;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cur-body);
+    }
+    #root .val {
+      font-size: 7.6cqh;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+      color: var(--cur-ink);
+      white-space: nowrap;
+    }
+    #root .line {
+      font-size: 2.6cqh;
+      line-height: 1.3;
+      color: var(--cur-ink);
+    }
+    #root .note {
+      font-size: 2.05cqh;
+      line-height: 1.45;
+      color: var(--cur-body);
+    }
+    #root .site {
+      font-size: 2.4cqh;
+      font-weight: 700;
+      color: var(--cur-ink);
+    }
+    #root .rule {
+      border-top: 1px solid var(--cur-hair);
+    }
+    /* 9:16: copy above the ocean, inside the 15–85% box */
+    @container (aspect-ratio < 0.7) {
+      #root .view {
+        left: 15cqw;
+        width: 70cqw;
+        top: 14cqh;
+        height: 36cqh;
+      }
+      #root .blk {
+        justify-content: flex-end;
+        gap: 1.1cqh;
+        padding-bottom: 1cqh;
+      }
+      #root .meta {
+        font-size: 1.75cqw;
+      }
+      #root .title {
+        font-size: 7.4cqw;
+      }
+      #root .dek {
+        font-size: 3.1cqw;
+      }
+      #root .lab {
+        font-size: 2.05cqw;
+      }
+      #root .val {
+        font-size: 9.6cqw;
+      }
+      #root .line {
+        font-size: 3.5cqw;
+      }
+      #root .note {
+        font-size: 2.85cqw;
+      }
+      #root .site {
+        font-size: 3.1cqw;
+      }
+    }
+    /* 4:5 and 1:1 */
+    @container (0.7 <= aspect-ratio < 1.3) {
+      #root .view {
+        left: 15cqw;
+        width: 70cqw;
+        top: 14cqh;
+        height: 38cqh;
+      }
+      #root .blk {
+        justify-content: flex-end;
+        gap: 0.9cqh;
+        padding-bottom: 1cqh;
+      }
+      #root .meta {
+        font-size: 1.6cqw;
+      }
+      #root .title {
+        font-size: 5.6cqw;
+      }
+      #root .dek {
+        font-size: 2.65cqw;
+      }
+      #root .lab {
+        font-size: 1.85cqw;
+      }
+      #root .val {
+        font-size: 7.4cqw;
+      }
+      #root .line {
+        font-size: 2.65cqw;
+      }
+      #root .note {
+        font-size: 2.3cqw;
+      }
+      #root .site {
+        font-size: 2.65cqw;
+      }
+    }
+    /* Phone-readable floor: no text under 2.6% of the 1080 px short side (28 px) */
+    #root .meta { flex-wrap: wrap; row-gap: 0.3em; letter-spacing: 0.1em; font-size: 2.6cqh; }
+    #root .lab { font-size: 2.6cqh; letter-spacing: 0.14em; }
+    #root .note { font-size: 2.6cqh; }
+    #root .dek { font-size: 2.8cqh; }
+    #root .line { font-size: 3cqh; }
+    #root .site { font-size: 2.8cqh; }
+    @container (aspect-ratio < 0.7) {
+      #root .meta, #root .lab { font-size: 2.6cqw; }
+      #root .note { font-size: 2.75cqw; }
+    }
+    @container (0.7 <= aspect-ratio < 1.3) {
+      #root .meta, #root .lab, #root .note { font-size: 2.6cqw; }
+      #root .dek, #root .line, #root .site { font-size: 2.8cqw; }
+      #root .title { font-size: 5.2cqw; }
+      #root .val { font-size: 7cqw; }
+    }
+    @container (aspect-ratio < 0.7) {
+      #root .view { top: 12cqh; height: 37cqh; }
+      #root .dek, #root .site { font-size: 3cqw; }
+      #root .line { font-size: 3.3cqw; }
+    }
+    @container (0.7 <= aspect-ratio < 0.9) { #root .view { top: 12cqh; height: 35cqh; } }
+    @container (0.9 <= aspect-ratio < 1.3) { #root .view { top: 10cqh; height: 37cqh; } #root #b0-period { display: none; } }
+    /* Landscape: copy on the left, chart on the right; only the end card swaps (copy 55–86% of the width) */
+    #root .blk.alt { left: 40cqw; right: -40cqw; }
+    @container (aspect-ratio < 1.3) { #root .blk.alt { left: 0; right: 0; } }
+    /* Kinetic lines (site craft.css): each line rises from behind its own mask */
+    #root .cr-line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+    #root .cr-line__i { display: block; }
+  </style>
+  <div data-hf-id="hf-rlrq" id="root" data-composition-id="copy" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-z18r" class="view">
+      <div data-hf-id="hf-yh57" class="page" id="copy-page">
+        <section data-hf-id="hf-cdwh" class="blk" id="b0">
+          <p data-hf-id="hf-lqeg" class="meta"><span data-hf-id="hf-y8b6" id="b0-kicker"></span><span data-hf-id="hf-4bk2" id="b0-period"></span></p>
+          <h1 data-hf-id="hf-hgvt" class="title" id="b0-title"></h1>
+          <p data-hf-id="hf-s6iu" class="dek" id="b0-dek"></p>
+          <p data-hf-id="hf-vn3i" class="lab" id="b0-lab"></p>
+        </section>
+        <section data-hf-id="hf-bm8o" class="blk" id="b1">
+          <p data-hf-id="hf-t29z" class="lab" id="b1-lab"></p>
+          <p data-hf-id="hf-scov" class="val" id="b1-val"></p>
+          <p data-hf-id="hf-r84z" class="line" id="b1-line"></p>
+          <p data-hf-id="hf-hh2r" class="note" id="b1-note"></p>
+        </section>
+        <section data-hf-id="hf-ka4j" class="blk" id="b2">
+          <p data-hf-id="hf-lbc4" class="lab" id="b2-lab"></p>
+          <p data-hf-id="hf-4uro" class="val" id="b2-val"></p>
+          <p data-hf-id="hf-9bb2" class="line" id="b2-line"></p>
+          <p data-hf-id="hf-5bnm" class="note" id="b2-note"></p>
+        </section>
+        <section data-hf-id="hf-gc0i" class="blk" id="b3">
+          <p data-hf-id="hf-462l" class="lab" id="b3-lab"></p>
+          <p data-hf-id="hf-ayvh" class="val" id="b3-val"></p>
+          <p data-hf-id="hf-xkvh" class="line" id="b3-line"></p>
+          <p data-hf-id="hf-vhv9" class="note" id="b3-note"></p>
+        </section>
+        <section data-hf-id="hf-xkat" class="blk" id="b4">
+          <p data-hf-id="hf-g0zu" class="lab" id="b4-lab"></p>
+          <p data-hf-id="hf-wm16" class="val" id="b4-val"></p>
+          <p data-hf-id="hf-c35k" class="line" id="b4-line"></p>
+          <p data-hf-id="hf-aygk" class="note" id="b4-note"></p>
+        </section>
+        <section data-hf-id="hf-wsn0" class="blk alt" id="b5">
+          <h1 data-hf-id="hf-5038" class="title" id="b5-title"></h1>
+          <p data-hf-id="hf-2mlp" class="site" id="b5-site"></p>
+          <p data-hf-id="hf-9y2n" class="note rule" id="b5-src"></p>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const C = window.EM_CONTENT;
+      const set = (id, txt) => {
+        const n = document.getElementById(id);
+        if (n) n.textContent = txt;
+      };
+      const ins = C.insights;
+      set("b0-kicker", C.kicker);
+      set("b0-period", C.period);
+      set("b0-title", C.title);
+      set("b0-dek", C.dek);
+      set("b0-lab", ins[0].label);
+      
+      
+      for (let i = 1; i <= 4; i++) {
+        set(`b${i}-lab`, ins[i].label);
+        set(`b${i}-val`, ins[i].value);
+        set(`b${i}-line`, ins[i].line);
+        set(`b${i}-note`, ins[i].note);
+      }
+      
+      
+      set("b5-title", C.title);
+      set("b5-site", C.site.replace(/^https?:\/\//, "").replace(/\/$/, ""));
+      set("b5-src", C.source_line + ". " + C.notes.join(" "));
+
+      // Site motion, in time instead of scroll (site/shared/craft.js):
+      //  - kinetic lines on title, dek, value and line: masked lines rise in, staggered across 0.62 of the window
+      //  - cue on meta, label, note, site: opacity + 2.4 vh rise
+      // Out: lines rise out through their masks, cues fade. Nothing moves while it is being read.
+      const T = [6.0, 13.2, 20.4, 27.6, 34.8];
+      const blocks = Array.from(document.getElementById("copy-page").children);
+      function splitLines(el) {
+        const words = el.textContent.trim().split(/\s+/);
+        el.textContent = "";
+        const spans = words.map((w, i) => {
+          const sp = document.createElement("span");
+          sp.textContent = w + (i < words.length - 1 ? " " : "");
+          el.appendChild(sp);
+          return sp;
+        });
+        const rows = [];
+        spans.forEach((sp) => {
+          const top = sp.offsetTop;
+          const last = rows[rows.length - 1];
+          if (last && Math.abs(last.top - top) < 4) last.words.push(sp.textContent);
+          else rows.push({ top, words: [sp.textContent] });
+        });
+        el.textContent = "";
+        return rows.map((r) => {
+          const line = document.createElement("span"),
+            inner = document.createElement("span");
+          line.className = "cr-line";
+          inner.className = "cr-line__i";
+          inner.textContent = r.words.join("");
+          line.appendChild(inner);
+          el.appendChild(line);
+          return inner;
+        });
+      }
+      const parts = blocks.map((b) => ({
+        kin: Array.from(b.querySelectorAll(".title, .dek, .val, .line")).map(splitLines),
+        cue: Array.from(b.querySelectorAll(".meta, .lab, .note, .site")),
+      }));
+      const tl = gsap.timeline({ paused: true });
+      const IN = 1.1; // the site's reveal window
+      function enter(i, t0) {
+        const P = parts[i];
+        tl.set(blocks[i], { opacity: 1 }, t0);
+        P.kin.forEach((lines, k) => {
+          const n = lines.length;
+          lines.forEach((ln, j) => {
+            const start = t0 + k * 0.08 * IN + (n > 1 ? (j / (n - 1)) * 0.62 * 0.5 * IN : 0);
+            tl.fromTo(ln, { yPercent: 135 }, { yPercent: 0, duration: 0.38 * IN + 0.25, ease: "power2.out", immediateRender: false }, start);
+          });
+        });
+        P.cue.forEach((el, k) => {
+          tl.fromTo(el, { opacity: 0, y: "2.4vh" }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, t0 + 0.22 * IN + k * 0.06 * IN);
+        });
+      }
+      function leave(i, t0) {
+        const P = parts[i];
+        P.kin.flat().forEach((ln, j) => tl.to(ln, { yPercent: -135, duration: 0.5, ease: "sine.in" }, t0 + j * 0.03));
+        P.cue.forEach((el) => tl.to(el, { opacity: 0, duration: 0.45, ease: "sine.in" }, t0));
+        tl.set(blocks[i], { opacity: 0 }, t0 + 0.8);
+      }
+      // Start states: every block hidden, every line below its mask
+      blocks.forEach((b) => tl.set(b, { opacity: 0 }, 0));
+      parts.forEach((P) => {
+        P.kin.flat().forEach((ln) => tl.set(ln, { yPercent: 135 }, 0));
+        P.cue.forEach((el) => tl.set(el, { opacity: 0 }, 0));
+      });
+      enter(0, 0.2);
+      T.forEach((t0, i) => {
+        leave(i, t0);
+        enter(i + 1, t0 + (i === T.length - 1 ? 0.6 : i === 0 ? 0.7 : 0.8)); // closing title once the strokes have cleared the right // the new copy rises as the morph settles (end card a little earlier, to be read) // the copy arrives with the fish (end card a little earlier, to be read)
+      });
+      window.__timelines["copy"] = tl;
+    })();
+  </script>
+</template>

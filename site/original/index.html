@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="theme-data radius-round-2">
+<html lang="en" class="theme-data dark theme-current radius-round-2" data-craft="flow">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -14,14 +14,20 @@
           document.documentElement.classList.add("motion");
       } catch (e) {}
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../shared/data.css" />
     <link rel="stylesheet" href="../shared/motion.css" />
     <link rel="stylesheet" href="assets/original.css" />
     <script src="assets/original-data.js" defer></script>
     <script src="../shared/motion.js" defer></script>
     <script src="assets/original.js" defer></script>
+    <script src="../shared/craft.js" defer></script>
       <link rel="stylesheet" href="../shared/topbar.css" />
     <link rel="stylesheet" href="../shared/topbar-brand.css" />
+    <link rel="stylesheet" href="../shared/current.css" />
+    <link rel="stylesheet" href="../shared/craft.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -49,6 +55,7 @@
 
     <main id="main">
       <section class="hero" id="top">
+        <p class="meta-row"><span>Ember / World electricity</span><span>Original analysis · 2000—2025</span></p>
         <h1>Renewables passed coal in 2025.</h1>
         <p class="dek">
           Renewable sources made <strong data-bind="renew">33.5%</strong> of the world’s electricity
@@ -98,6 +105,7 @@
 
       <section class="section wrap" id="crossover" aria-labelledby="cross-title">
         <div class="section-copy">
+          <p class="kicker-num">01 / The crossover</p>
           <h2 id="cross-title">After 25 years below coal, renewables crossed it.</h2>
           <p>
             Coal’s share peaked at <strong data-bind="coalPeak">40.9%</strong> in
@@ -119,7 +127,7 @@
           </div>
           <div class="chart-wrap scroll">
             <svg
-              id="crossChart"
+              id="crossChart" data-cr-reveal="left"
               class="chart"
               viewBox="0 0 760 360"
               role="img"
@@ -132,7 +140,7 @@
             </svg>
             <div class="tooltip" id="crossTip" role="status" aria-live="polite" hidden></div>
           </div>
-          <p class="legend">
+          <p class="legend" data-cr-in data-cr-stagger="70">
             <span><span class="swatch" style="background: var(--c-renew)"></span>Renewables</span>
             <span><span class="swatch" style="background: var(--c-compare)"></span>Coal</span>
           </p>
@@ -147,6 +155,7 @@
       <section class="section tint" id="growth" aria-labelledby="growth-title">
         <div class="wrap">
           <div class="section-copy">
+            <p class="kicker-num">02 / Clean supply covers growth</p>
             <h2 id="growth-title">Clean power covered all of 2025’s new demand.</h2>
             <p>
               Each year, the bars show how much clean and fossil generation changed; the dot is the
@@ -170,7 +179,7 @@
             </div>
             <div class="chart-wrap scroll">
               <svg
-                id="changeChart"
+                id="changeChart" data-cr-reveal="up"
                 class="chart"
                 viewBox="0 0 760 380"
                 role="img"
@@ -184,7 +193,7 @@
               </svg>
               <div class="tooltip" id="changeTip" role="status" aria-live="polite" hidden></div>
             </div>
-            <p class="legend">
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="key renew"></span>Clean</span>
               <span><span class="key compare"></span>Fossil</span>
               <span><span class="swatch dot"></span>Total demand change</span>
@@ -196,6 +205,7 @@
       <section class="section wrap" id="solar" aria-labelledby="solar-title">
         <div class="split">
           <div class="section-copy">
+            <p class="kicker-num">03 / Solar overtakes wind</p>
             <h2 id="solar-title">Solar did most of the work, and passed wind.</h2>
             <p>
               Solar added <strong data-bind="dSolar">646 TWh</strong> in 2025, about three-quarters
@@ -213,7 +223,7 @@
             </div>
             <div class="chart-wrap">
               <svg
-                id="solarChart"
+                id="solarChart" data-cr-reveal="iris"
                 class="chart"
                 viewBox="0 0 520 320"
                 role="img"
@@ -226,7 +236,7 @@
               </svg>
               <div class="tooltip" id="solarTip" role="status" aria-live="polite" hidden></div>
             </div>
-            <p class="legend">
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="swatch" style="background: var(--c-renew)"></span>Solar</span>
               <span><span class="swatch" style="background: var(--c-compare)"></span>Wind</span>
             </p>
@@ -237,6 +247,7 @@
       <section class="section tint" id="mix" aria-labelledby="mix-title">
         <div class="wrap">
           <div class="section-copy">
+            <p class="kicker-num">04 / The generation mix</p>
             <h2 id="mix-title">The whole mix, 2000 against 2025.</h2>
             <p>
               Generation roughly doubled, from <span data-bind="total2000">15,325</span> to
@@ -252,8 +263,8 @@
                 <p class="chart-sub">% of total · hollow dot = 2000, filled dot = 2025</p>
               </div>
             </div>
-            <div id="mixRows" class="dumbbells" role="list"></div>
-            <p class="legend">
+            <div id="mixRows" data-cr-in data-cr-stagger="70" class="dumbbells" role="list"></div>
+            <p class="legend" data-cr-in data-cr-stagger="70">
               <span><span class="key renew"></span>Share rose</span>
               <span><span class="key compare"></span>Share fell</span>
             </p>
@@ -264,6 +275,7 @@
       <section class="section method" id="method" aria-labelledby="method-title">
         <div class="wrap method-grid">
           <div>
+            <p class="kicker-num">05 / Method and limits</p>
             <h2 id="method-title">What this page can and can’t claim.</h2>
           </div>
           <div class="method-copy">

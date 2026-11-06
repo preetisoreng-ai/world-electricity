@@ -1,0 +1,701 @@
+/*
+  "Current" design guide — ember-electricity (from the reviewer's reference "The current beneath the crossover").
+  Loaded AFTER each page's own stylesheet. Applies on <html class="theme-data dark theme-current">.
+
+  - Near-black ground, off-white bold display type, grey body copy, hairline rules.
+  - Numbered, letter-spaced uppercase section labels ("01 / …").
+  - Monochrome data palette: whites, warm greys and cool slate blue-greys, one tone per source.
+  - Explicit, reviewer-requested exception to the Data brand colours (as the framework's story template
+    is). Data tokens still load (theme-data + dark); neutral steps come from the Data neutral ramp where
+    one exists. Low-chroma series are never distinguished by colour alone: they carry direct labels and
+    a line style (solid / dashed / dotted).
+*/
+html.theme-current,
+html.theme-data.dark.theme-current {
+  --cur-bg: #08090b;
+  --cur-panel: #0d0f12;
+  --cur-ink: #f2f0ea;
+  --cur-body: #b9b8b2;
+  --cur-muted: #8c8e92;
+  --cur-faint: #5c5f64;
+  --cur-hair: rgba(242, 240, 234, 0.13);
+  --cur-hair-strong: rgba(242, 240, 234, 0.28);
+  --cur-glow: 0 0 10px rgba(242, 240, 234, 0.55);
+  --cur-font: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Source palette (reference) */
+  --src-coal: #d9d8d2;
+  --src-gas: #9b9a93;
+  --src-other-fossil: #5d5d5b;
+  --src-nuclear: #666e76;
+  --src-hydro: #85989e;
+  --src-wind: #a8bdc3;
+  --src-solar: #eef8fb;
+  --src-bioenergy: #bdb4a8;
+  --src-other-renewables: #857c74;
+
+  /* Series roles (series 1 bright solid, series 2 slate dashed, series 3 sand dotted) */
+  --ser-1: var(--cur-ink);
+  --ser-2: #85989e;
+  --ser-3: #bdb4a8;
+
+  /* Map the variables every page already uses */
+  --ink: var(--cur-ink);
+  --muted: var(--cur-muted);
+  --paper: var(--cur-bg);
+  --white: var(--cur-bg);
+  --line: var(--cur-hair);
+  --brand: var(--cur-ink);
+  --brand-dark: var(--cur-ink);
+  --c-renew: var(--ser-1);
+  --c-focus: var(--ser-1);
+  --c-compare: var(--ser-2);
+  --c-other: #3a3d42;
+  --c-context: #3a3d42;
+  --s1: var(--ser-1);
+  --s2: var(--ser-2);
+  --s3: var(--ser-3);
+  --color-background-neutral: var(--cur-bg);
+  --color-background-subtle: #121418;
+  --color-border-subtle: var(--cur-hair);
+  --color-border-neutral: var(--cur-faint);
+  --color-text-neutral: var(--cur-ink);
+  --color-text-neutral-subtle: var(--cur-muted);
+  --color-text-primary: var(--cur-ink);
+  --color-background-primary: var(--cur-ink);
+  --color-text-onprimary: var(--cur-bg);
+  --color-border-information: var(--cur-ink);
+  background: var(--cur-bg);
+  color-scheme: dark;
+}
+html.theme-current body {
+  background: var(--cur-bg);
+  color: var(--cur-body);
+  font-family: var(--cur-font);
+  font-feature-settings: "tnum" 1;
+}
+
+/* ---------- Type ---------- */
+html.theme-current h1,
+html.theme-current h2,
+html.theme-current h3 {
+  color: var(--cur-ink);
+  font-family: var(--cur-font);
+}
+html.theme-current h1 {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+html.theme-current h2 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+html.theme-current strong,
+html.theme-current b {
+  color: var(--cur-ink);
+}
+html.theme-current a {
+  color: var(--cur-ink);
+}
+.kicker-num {
+  display: block;
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cur-body);
+}
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 0 16px;
+  margin: 0 0 32px;
+  border-bottom: 1px solid var(--cur-hair);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cur-body);
+}
+.meta-row span:last-child {
+  font-weight: 400;
+  color: var(--cur-muted);
+}
+
+/* ---------- Shared top bar (stitched) ---------- */
+html.theme-current .topbar {
+  --tb-ink: var(--cur-ink);
+  --tb-muted: var(--cur-muted);
+  --tb-line: var(--cur-hair);
+  --tb-brand: var(--cur-ink);
+  --tb-bg: rgba(8, 9, 11, 0.92);
+  --tb-panel: #121418;
+  --tb-hover: #1a1d22;
+  --tb-selected: #23272d;
+  font-family: var(--cur-font);
+}
+html.theme-current .topbar .mark {
+  background: transparent;
+  color: var(--cur-ink);
+  border: 1px solid var(--cur-hair-strong);
+  border-radius: 50%;
+}
+html.theme-current .topbar .wordmark {
+  color: var(--cur-ink);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+html.theme-current .topbar nav > a {
+  color: var(--cur-muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+html.theme-current .topbar nav > a:hover,
+html.theme-current .topbar nav > a[aria-current="location"] {
+  color: var(--cur-ink);
+}
+html.theme-current .topbar nav > a::after {
+  background: var(--cur-ink);
+}
+html.theme-current .scroll-progress {
+  background: var(--cur-ink);
+}
+
+/* ---------- Editorial pages (Original / Tested) ---------- */
+html.theme-current .hero {
+  background: var(--cur-bg);
+  border-bottom: 1px solid var(--cur-hair);
+}
+html.theme-current .hero > h1 {
+  color: var(--cur-ink);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  max-width: 18ch;
+}
+html.theme-current .hero > .dek {
+  color: var(--cur-body);
+}
+html.theme-current .hero > .hero-note {
+  border-left: 1px solid var(--cur-hair-strong);
+}
+html.theme-current .note-label {
+  color: var(--cur-body);
+  letter-spacing: 0.2em;
+}
+html.theme-current .hero-note p {
+  color: var(--cur-muted);
+}
+html.theme-current .stat-band {
+  background: var(--cur-bg);
+  color: var(--cur-ink);
+  border-bottom: 1px solid var(--cur-hair);
+}
+html.theme-current .stats article {
+  border-left: 1px solid var(--cur-hair);
+}
+html.theme-current .stats article:first-child {
+  border-left: 0;
+}
+html.theme-current .stats strong {
+  color: var(--cur-ink);
+  font-weight: 700;
+}
+html.theme-current .stats span {
+  color: var(--cur-body);
+  opacity: 1;
+}
+html.theme-current .section {
+  border-bottom: 1px solid var(--cur-hair);
+}
+html.theme-current .tint {
+  background: var(--cur-bg);
+}
+html.theme-current .section-copy h2 {
+  color: var(--cur-ink);
+}
+html.theme-current .section-copy p {
+  color: var(--cur-body);
+}
+html.theme-current .chart-card,
+html.theme-current .ratio-card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--cur-hair);
+  border-radius: 0;
+  padding: 24px 0 0;
+}
+html.theme-current .chart-card h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cur-body);
+}
+html.theme-current .chart-sub {
+  color: var(--cur-muted);
+}
+html.theme-current .legend {
+  color: var(--cur-muted);
+}
+html.theme-current .chip {
+  background: transparent;
+  color: var(--cur-ink);
+  border: 1px solid var(--cur-hair-strong);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+html.theme-current .caveat {
+  color: var(--cur-muted);
+}
+html.theme-current .method {
+  background: var(--cur-bg);
+  border-top: 1px solid var(--cur-hair);
+}
+html.theme-current .motion .method {
+  background-color: var(--cur-bg);
+  box-shadow: 0 0 0 100vmax var(--cur-bg);
+}
+html.theme-current .method .eyebrow {
+  color: var(--cur-body);
+}
+html.theme-current .method-copy p {
+  color: var(--cur-body);
+}
+html.theme-current .method-copy strong {
+  color: var(--cur-ink);
+}
+html.theme-current .method .source {
+  border-top: 1px solid var(--cur-hair);
+  color: var(--cur-muted);
+}
+html.theme-current footer {
+  background: var(--cur-bg);
+  color: var(--cur-muted);
+  border-top: 1px solid var(--cur-hair);
+}
+html.theme-current .skip {
+  background: var(--cur-bg);
+  color: var(--cur-ink);
+}
+html.theme-current .tooltip {
+  background: var(--cur-ink);
+  color: var(--cur-bg);
+  border-radius: 2px;
+}
+html.theme-current .motion .story,
+html.theme-current .motion .recent,
+html.theme-current .motion .conclusion {
+  background-color: var(--cur-bg);
+  box-shadow: 0 0 0 100vmax var(--cur-bg);
+}
+
+/* Charts: hairline grid, line styles carry identity alongside tone */
+html.theme-current .grid-line {
+  stroke: var(--cur-hair);
+  stroke-opacity: 1;
+  stroke-dasharray: 1 4;
+}
+html.theme-current .axis-label {
+  fill: var(--cur-muted);
+}
+html.theme-current .zero-line {
+  stroke: var(--cur-hair-strong);
+  stroke-opacity: 1;
+}
+html.theme-current .line-a {
+  stroke: var(--ser-1);
+}
+html.theme-current .line-b {
+  stroke: var(--ser-2);
+  stroke-dasharray: 7 5;
+}
+html.theme-current .end-label,
+html.theme-current .annot,
+html.theme-current .end-lab {
+  fill: var(--cur-ink);
+}
+html.theme-current .annot-line {
+  stroke: var(--cur-hair-strong);
+}
+html.theme-current .cross-dot {
+  fill: var(--cur-bg);
+  stroke: var(--cur-ink);
+}
+html.theme-current .hover-line {
+  stroke: var(--cur-ink);
+}
+html.theme-current .total-dot {
+  fill: var(--cur-ink);
+  filter: drop-shadow(var(--cur-glow));
+}
+html.theme-current .bar-a,
+html.theme-current .bar-up,
+html.theme-current .bar-hold,
+html.theme-current .stack-a {
+  fill: var(--ser-1);
+}
+html.theme-current .bar-b,
+html.theme-current .bar-down,
+html.theme-current .bar-fail,
+html.theme-current .stack-b {
+  fill: var(--ser-2);
+}
+html.theme-current .stack-a2 {
+  fill: var(--ser-1);
+  fill-opacity: 0.4;
+}
+html.theme-current .stack-label.in {
+  fill: var(--cur-bg);
+}
+html.theme-current .bar-actual {
+  stroke: var(--cur-ink);
+}
+html.theme-current .legend .swatch {
+  height: 2px;
+}
+html.theme-current .legend .key {
+  border-radius: 50%;
+}
+html.theme-current .key.renew,
+html.theme-current .key.s1,
+html.theme-current .key.focus {
+  background: var(--ser-1);
+}
+html.theme-current .key.compare,
+html.theme-current .key.s2 {
+  background: var(--ser-2);
+}
+html.theme-current .key.s3 {
+  background: var(--ser-3);
+}
+html.theme-current .key.other {
+  background: #3a3d42;
+}
+html.theme-current .key.renew-light {
+  background: var(--ser-1);
+  opacity: 0.4;
+}
+html.theme-current .db .rail::before {
+  background: var(--cur-hair);
+}
+html.theme-current .db .dot {
+  background: var(--cur-bg);
+  border-color: var(--cur-muted);
+}
+html.theme-current .db.up .seg,
+html.theme-current .db.up .end {
+  background: var(--ser-1);
+}
+html.theme-current .db.down .seg,
+html.theme-current .db.down .end {
+  background: var(--ser-2);
+}
+html.theme-current .db.up .end {
+  box-shadow: var(--cur-glow);
+}
+html.theme-current .db {
+  border-bottom: 1px solid var(--cur-hair);
+}
+html.theme-current .db .grp {
+  color: var(--cur-faint);
+}
+
+/* Tested: tables, statuses, slider */
+html.theme-current .checks-scroll {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--cur-hair);
+  border-radius: 0;
+}
+html.theme-current .checks-table th {
+  background: transparent;
+  color: var(--cur-body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  border-bottom: 1px solid var(--cur-hair-strong);
+}
+html.theme-current .checks-table td {
+  border-bottom: 1px solid var(--cur-hair);
+  color: var(--cur-body);
+}
+html.theme-current .checks-table td:first-child {
+  color: var(--cur-ink);
+}
+html.theme-current .status {
+  background: transparent;
+  border: 1px solid currentColor;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10px;
+  border-radius: 2px;
+}
+html.theme-current .status.verified {
+  color: var(--cur-ink);
+}
+html.theme-current .status.qualified {
+  color: var(--src-wind);
+}
+html.theme-current .status.revised {
+  color: var(--src-bioenergy);
+}
+html.theme-current .status.rejected {
+  color: var(--cur-muted);
+  text-decoration: line-through;
+}
+html.theme-current .status.supported {
+  color: var(--src-hydro);
+}
+html.theme-current #kSlider {
+  accent-color: var(--cur-ink);
+}
+html.theme-current .verdict.holds {
+  background: transparent;
+  color: var(--cur-ink);
+  border: 1px solid var(--cur-ink);
+}
+html.theme-current .verdict.fails {
+  background: transparent;
+  color: var(--src-wind);
+  border: 1px dashed var(--src-wind);
+}
+html.theme-current .pb.renew i {
+  background: var(--ser-1);
+}
+html.theme-current .pb.coal i {
+  background: var(--ser-2);
+}
+
+/* ---------- Dashboard ---------- */
+html.theme-current .page-head h1 {
+  font-size: clamp(32px, 4vw, 52px);
+}
+html.theme-current .page-head p,
+html.theme-current .asof {
+  color: var(--cur-body);
+}
+html.theme-current .asof strong {
+  color: var(--cur-ink);
+}
+html.theme-current .tabs {
+  border-bottom: 1px solid var(--cur-hair);
+}
+html.theme-current .tabs button {
+  color: var(--cur-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+html.theme-current .tabs button[aria-selected="true"] {
+  color: var(--cur-ink);
+  border-bottom-color: var(--cur-ink);
+}
+html.theme-current .dd,
+html.theme-current .search {
+  background: #121418;
+  border: 1px solid var(--cur-hair);
+  border-radius: 2px;
+}
+html.theme-current .dd > span,
+html.theme-current .search span {
+  color: var(--cur-muted);
+  border-right-color: var(--cur-hair);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+html.theme-current .dd select,
+html.theme-current .search input {
+  color: var(--cur-ink);
+}
+html.theme-current .dd select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23b9b8b2' d='M26.7 12.7 16.7 22.7a1 1 0 0 1-1.4 0l-10-10a1 1 0 0 1 1.4-1.4l9.3 9.3 9.3-9.3a1 1 0 0 1 1.4 1.4Z'/%3E%3C/svg%3E");
+}
+html.theme-current .dd select option {
+  background: #121418;
+  color: var(--cur-ink);
+}
+html.theme-current .btn-border {
+  background: transparent;
+  color: var(--cur-ink);
+  border: 1px solid var(--cur-hair-strong);
+  border-radius: 2px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+html.theme-current .btn-border:hover {
+  background: #1a1d22;
+}
+html.theme-current .btn-link {
+  color: var(--cur-ink);
+}
+html.theme-current .filter-state {
+  color: var(--cur-muted);
+}
+html.theme-current .notice {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--cur-hair);
+  border-radius: 0;
+  padding: 16px 0;
+}
+html.theme-current .notice strong {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+html.theme-current .kpi,
+html.theme-current .card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--cur-hair);
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+html.theme-current .kpis {
+  gap: 0 32px;
+}
+html.theme-current .kpi-label {
+  color: var(--cur-body);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+}
+html.theme-current .kpi strong {
+  color: var(--cur-ink);
+  font-weight: 700;
+}
+html.theme-current .kpi .delta.up {
+  color: var(--cur-ink);
+}
+html.theme-current .kpi .delta.down {
+  color: var(--src-wind);
+}
+html.theme-current .revise {
+  background: transparent;
+  color: var(--src-bioenergy);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+html.theme-current .card-head h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cur-body);
+}
+html.theme-current .card-head p {
+  color: var(--cur-muted);
+}
+html.theme-current .info {
+  background: transparent;
+  border-color: var(--cur-hair-strong);
+  color: var(--cur-body);
+}
+html.theme-current .info::after {
+  background: var(--cur-ink);
+  color: var(--cur-bg);
+  border-radius: 2px;
+}
+html.theme-current .view-tabs {
+  background: transparent;
+  border: 1px solid var(--cur-hair);
+  border-radius: 2px;
+}
+html.theme-current .view-tabs button {
+  color: var(--cur-muted);
+  border-radius: 2px;
+}
+html.theme-current .view-tabs button[aria-pressed="true"] {
+  background: var(--cur-ink);
+  color: var(--cur-bg);
+  box-shadow: none;
+}
+html.theme-current .ln.s1 {
+  stroke: var(--ser-1);
+}
+html.theme-current .ln.s2 {
+  stroke: var(--ser-2);
+  stroke-dasharray: 7 5;
+}
+html.theme-current .ln.s3 {
+  stroke: var(--ser-3);
+  stroke-dasharray: 2 4;
+}
+html.theme-current .pt.s1 {
+  fill: var(--ser-1);
+}
+html.theme-current .pt.s2 {
+  fill: var(--ser-2);
+}
+html.theme-current .pt.s3 {
+  fill: var(--ser-3);
+}
+html.theme-current .yr-mark {
+  stroke: var(--cur-hair-strong);
+}
+html.theme-current .yr-tag {
+  fill: var(--cur-muted);
+}
+html.theme-current .bar-lab,
+html.theme-current .bar-val {
+  fill: var(--cur-body);
+}
+html.theme-current .table-wrap {
+  border: 0;
+  border-top: 1px solid var(--cur-hair);
+  border-radius: 0;
+}
+html.theme-current .data-table th {
+  background: transparent;
+  color: var(--cur-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10px;
+  border-bottom: 1px solid var(--cur-hair-strong);
+}
+html.theme-current .data-table td {
+  border-bottom: 1px solid var(--cur-hair);
+  color: var(--cur-body);
+}
+html.theme-current .data-table tr.focus td {
+  background: #15181c;
+  color: var(--cur-ink);
+}
+html.theme-current .row-count {
+  color: var(--cur-muted);
+}
+html.theme-current .legend .swatch.dash {
+  border-top-color: var(--cur-ink);
+}
+
+/* Focus ring */
+html.theme-current :where(a, button, select, input, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--cur-ink);
+  outline-offset: 3px;
+}
+
+/* Meta row in the editorial hero takes the hero's top grid slot */
+html.theme-current .hero > .meta-row { grid-area: eyebrow; margin-bottom: 40px; }
+html.theme-current .section-copy .kicker-num { margin-bottom: 14px; }
+html.theme-current .method .kicker-num { color: var(--cur-body); }
+html.theme-current .bar-dim { opacity: 0.55; }
+html.theme-current .slider-label output { color: var(--cur-ink); }
+html.theme-current .db .grp { color: var(--cur-muted); }
+/* Phones: keep the wordmark and page switcher on one line; tabs fit without scrolling */
+@media (max-width: 760px) {
+  html.theme-current .topbar .wordmark { font-size: 12px; letter-spacing: 0.08em; white-space: nowrap; }
+  html.theme-current .version-menu summary { white-space: nowrap; font-size: 13px; }
+  html.theme-current .tabs button { letter-spacing: 0.06em; font-size: 11px; padding: 10px 8px; }
+  html.theme-current .meta-row { letter-spacing: 0.12em; font-size: 10px; }
+}

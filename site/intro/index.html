@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" class="theme-data dark theme-current radius-round-2">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Current Intro Film</title>
+    <meta
+      name="description"
+      content="A 43-second film on world electricity, 2000–2025: in 2025 clean power grew faster than demand, and renewables, led by hydro, edged past coal for the first time. Plays the vertical cut on phones and the wide cut on desktop."
+    />
+    <meta property="og:title" content="The current beneath the crossover" />
+    <meta
+      property="og:description"
+      content="Renewables 33.5%, coal 33.2%: a 0.3-point margin. A 43-second data film from Ember's world electricity data."
+    />
+    <meta property="og:image" content="media/cover-16x9.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../shared/data.css" />
+    <link rel="stylesheet" href="../shared/topbar.css" />
+    <link rel="stylesheet" href="../shared/topbar-brand.css" />
+    <link rel="stylesheet" href="../shared/current.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        background: var(--cur-bg);
+        color: var(--cur-body);
+        font-family: Inter, sans-serif;
+      }
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 56px;
+        display: grid;
+        gap: 20px;
+      }
+      h1 {
+        margin: 0;
+        font:
+          700 clamp(34px, 5vw, 64px) / 1 Inter,
+          sans-serif;
+        letter-spacing: -0.045em;
+        color: var(--cur-ink);
+      }
+      .dek {
+        margin: 0;
+        max-width: 46ch;
+        font:
+          400 clamp(17px, 1.8vw, 21px) / 1.4 Inter,
+          sans-serif;
+        color: var(--cur-body);
+      }
+      .dek b {
+        color: var(--cur-ink);
+      }
+      .film {
+        margin: 0;
+        border-top: 1px solid var(--cur-hair);
+        padding-top: 18px;
+      }
+      video {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: var(--cur-bg);
+      }
+      /* Phones get the 9:16 cut, sized to the screen */
+      @media (max-width: 760px), (orientation: portrait) {
+        video {
+          max-height: 78svh;
+          width: auto;
+          max-width: 100%;
+          margin: 0 auto;
+        }
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin: 4px 0 0;
+      }
+      .links a {
+        color: var(--cur-ink);
+        text-decoration: none;
+        border-bottom: 1px solid var(--cur-hair-strong);
+        padding: 6px 0 4px;
+        font:
+          500 16px Inter,
+          sans-serif;
+      }
+      .links a:hover,
+      .links a:focus-visible {
+        border-bottom-color: var(--cur-ink);
+      }
+      .credit {
+        margin: 0;
+        font:
+          400 13px/1.5 Inter,
+          sans-serif;
+        color: var(--cur-muted);
+        border-top: 1px solid var(--cur-hair);
+        padding-top: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar topbar-dark">
+      <a class="wordmark" href="../data-story/index.html" aria-label="World electricity story home"
+        ><span class="mark" aria-hidden="true">⚡</span> World electricity</a
+      >
+      <nav aria-label="World electricity pages">
+        <details class="version-menu">
+          <summary>
+            <span>Intro film</span
+            ><svg class="version-menu-icon" viewBox="0 0 32 32" aria-hidden="true">
+              <path
+                d="M26.7 12.7 16.7 22.7a1 1 0 0 1-1.4 0l-10-10a1 1 0 0 1 1.4-1.4l9.3 9.3 9.3-9.3a1 1 0 0 1 1.4 1.4Z"
+              />
+            </svg>
+          </summary>
+          <div class="version-menu-panel">
+            <a href="../data-story/index.html">Data story</a>
+            <a href="../original/index.html">Original</a>
+            <a href="../tested/index.html">Pressure tested</a>
+            <a href="../dashboard/index.html">Dashboard</a>
+          </div>
+        </details>
+      </nav>
+    </header>
+    <main>
+      <h1>The current beneath the crossover</h1>
+      <p class="dek">
+        In 2025 clean power grew faster than world demand, and renewables, led by hydro, edged past
+        coal for the first time: <b>33.5%</b> against <b>33.2%</b>. A 43-second film.
+      </p>
+      <figure class="film">
+        <!-- Device-aware: the 9:16 cut on phones/portrait screens, the 16:9 cut on desktop -->
+        <video
+          id="film"
+          controls
+          playsinline
+          preload="metadata"
+          poster="media/cover-16x9.jpg"
+          aria-label="Intro film: the current beneath the crossover"
+        >
+          <source src="media/video-16x9.mp4" type="video/mp4" />
+        </video>
+      </figure>
+      <p class="links">
+        <a href="../data-story/index.html">Read the data story</a
+        ><a href="../dashboard/index.html">Explore the dashboard</a
+        ><a href="../tested/index.html">Read the pressure test</a>
+      </p>
+      <p class="credit">
+        Source / Ember yearly electricity generation, World, all sources, 2000–2025. The 2025
+        figures may be revised. Music: “Relaxing piano” by AngeloRizzo (Freesound), CC0.
+      </p>
+    </main>
+    <script>
+      // Pick the cut explicitly (not every browser honours <source media> on <video>), with the matching poster.
+      (function () {
+        var v = document.getElementById("film");
+        var phone = matchMedia("(max-width: 760px), (orientation: portrait)").matches;
+        v.poster = phone ? "media/cover-9x16.jpg" : "media/cover-16x9.jpg";
+        v.src = phone ? "media/video-9x16.mp4" : "media/video-16x9.mp4";
+      })();
+    </script>
+  </body>
+</html>

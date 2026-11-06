@@ -1,0 +1,25 @@
+/* GENERATED from site/shared/current.css by artifacts/tools/build-assets.mjs — do not edit */
+:root {
+  --cur-bg: #08090b;
+  --cur-panel: #0d0f12;
+  --cur-ink: #f2f0ea;
+  --cur-body: #b9b8b2;
+  --cur-muted: #8c8e92;
+  --cur-faint: #5c5f64;
+  --cur-hair: rgba(242, 240, 234, 0.13);
+  --cur-hair-strong: rgba(242, 240, 234, 0.28);
+  --cur-glow: 0 0 10px rgba(242, 240, 234, 0.55);
+  --cur-font: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --src-coal: #d9d8d2;
+  --src-gas: #9b9a93;
+  --src-other-fossil: #5d5d5b;
+  --src-nuclear: #666e76;
+  --src-hydro: #85989e;
+  --src-wind: #a8bdc3;
+  --src-solar: #eef8fb;
+  --src-bioenergy: #bdb4a8;
+  --src-other-renewables: #857c74;
+  --ser-1: var(--cur-ink);
+  --ser-2: #85989e;
+  --ser-3: #bdb4a8;
+}

@@ -20,3 +20,9 @@ Not used: per-person figures, gas and nuclear detail, mix dumbbells (dashboard c
 Template adaptations: hero and closing radials use linear spoke length (the template's square-root scaling hid the 2× growth); scene 3 adds a line form in the template's lavender/lime palette, since the crossover is a change over time.
 
 Reproduce: `python -I workflow/analysis/build_story_data.py` → `site/data-story/assets/story-data.js`.
+
+## Revision 2026-11-05: "current" design (reviewer reference)
+Reviewer supplied a reference ("The current beneath the crossover") and asked to rebuild the story in its design language and palette, and restyle the other pages to match.
+- Story rebuilt: same scroll mechanics as the framework template (snapped insights, sticky stage, dissolve, progress line, mobile visual-above-copy, reduced-motion final states); visuals and palette replaced: two currents (clean above / fossil below, dotted threads, bright endpoints), renewables vs coal lines (solid/dashed), change by source (source tones), solar vs wind lines, 2000 vs 2025 mix bars, margin bars.
+- Scenes now: 01 two currents (C8) · 02 renewables pass coal (C1) · 03 clean supply covers growth (C2, C3) · 04 solar overtakes wind (C5, C6, C9) · 05 generation mix · 06 the margin is narrow (C1 robustness, T1/T2 limits). Tested guardrails kept: "edged past", "led by hydropower", 0.44% / dry-year caveat, precedents, no emissions or causal claims.
+- New data in story-data.js: clean and fossil per year, wind series, mix, 2024→2025 change by source (from pressure_test.py attribution).

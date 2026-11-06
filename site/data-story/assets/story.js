@@ -1,8 +1,10 @@
 /*
-  World electricity story — step playback, following run-framework/assets/data-story-template.js
-  (oil-motion "segment-play", one gesture = one step). Each insight renders render(t) over its own
-  duration; a newer step cancels the running one. Reduced motion: final states, no dissolve.
-  All numbers come from window.STORY_DATA (workflow/analysis/build_story_data.py).
+  World electricity story: "current" redesign.
+  Step playback follows run-framework/assets/data-story-template.js (oil-motion segment-play, one
+  gesture = one step, latest target wins, reduced motion = final states). Visuals follow the reviewer's
+  reference: two currents (clean above / fossil below a centreline, dotted threads, bright endpoints),
+  monochrome lines, source-toned bars. Every number comes from window.STORY_DATA
+  (workflow/analysis/build_story_data.py).
 */
 (() => {
   "use strict";
@@ -17,429 +19,488 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const n0 = (v) => Math.round(v).toLocaleString("en-US");
   const MINUS = "−";
-  function el(tag, attrs, parent) {
+  function el(tag, attrs, parent, text) {
     const n = document.createElementNS(SVG, tag);
     for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
     if (parent) parent.append(n);
     return n;
   }
 
   const S = window.STORY_DATA;
   if (!S) {
-    document.documentElement.classList.remove("motion"); // text reads at full strength without data
+    document.documentElement.classList.remove("motion");
     return;
   }
-  const N = S.years.length;
+  const N = S.years.length,
+    L = N - 1;
+  const SRC = {
+    Coal: "--src-coal",
+    Gas: "--src-gas",
+    "Other fossil": "--src-other-fossil",
+    Nuclear: "--src-nuclear",
+    Hydro: "--src-hydro",
+    Wind: "--src-wind",
+    Solar: "--src-solar",
+    Bioenergy: "--src-bioenergy",
+    "Other renewables": "--src-other-renewables",
+  };
+  const srcColor = (s) => `var(${SRC[s]})`;
+  const shift = S.mix.reduce((a, m) => a + Math.max(0, m.share2025 - m.share2000), 0) * 100;
 
   /* ---------------- Bound text ---------------- */
-  const facts = {
-    solarPct: Math.round(S.solarShareOfGrowth * 100),
-    renew: S.renewShare[N - 1] * 100,
-    coal: S.coalShare[N - 1] * 100,
-    kFlip: S.kFlip * 100,
-    solarX: S.solarX2015,
-  };
+  const pct1 = (v) => (v * 100).toFixed(1);
   const bind = {
-    total: n0(S.total[N - 1]),
     last: String(S.last),
+    total: n0(S.total[L]),
     totalX: S.totalX.toFixed(1),
-    solarPct: String(facts.solarPct),
-    dTotal: n0(S.dTotal),
-    dClean: n0(S.dClean),
-    renewPct: facts.renew.toFixed(1),
-    coalPct: facts.coal.toFixed(1),
-    coalPeak: (S.coalPeak * 100).toFixed(1),
+    renewPct: pct1(S.renewShare[L]),
+    coalPct: pct1(S.coalShare[L]),
+    coalPeak: pct1(S.coalPeak),
     coalPeakYear: String(S.coalPeakYear),
-    nonHydro: (S.nonHydroShare * 100).toFixed(1),
-    windSolar: (S.windSolarShare * 100).toFixed(1),
-    dryYear: S.dryFlips.join(", "),
-    solarXText: String(Math.round(facts.solarX)),
-    fossilPct: (Math.abs(S.fossilPct) * 100).toFixed(1),
+    dClean: n0(S.dClean),
+    dTotal: n0(S.dTotal),
+    dFossilAbs: n0(Math.abs(S.dFossil)),
+    fossilPct: (S.fossilPct < 0 ? MINUS : "+") + (Math.abs(S.fossilPct) * 100).toFixed(1),
     precedents: S.precedentYears.join(" and "),
+    solar: n0(S.solar[L]),
+    wind: n0(S.wind[L]),
+    dSolar: n0(S.dSolarTwh),
+    solarPct: String(Math.round(S.solarShareOfGrowth * 100)),
+    solarX: String(Math.round(S.solarX2015)),
+    gap: S.gapLast.toFixed(1),
+    kFlip: (S.kFlip * 100).toFixed(2),
+    dryYear: S.dryFlips.join(", "),
+    nonHydro: pct1(S.nonHydroShare),
   };
   $$("[data-bind]").forEach((s) => {
     if (bind[s.dataset.bind] != null) s.textContent = bind[s.dataset.bind];
   });
+  $("#t-mix").textContent =
+    `Between ${S.first} and ${S.last}, about ${Math.round(shift)} points of the world’s power mix changed hands.`;
+  $("#mixLegend").innerHTML = [...S.mix]
+    .map(
+      (m) =>
+        `<li><i style="background:${srcColor(m.source)}"></i>${m.source} ${(m.share2000 * 100).toFixed(m.share2000 < 0.001 ? 2 : 1)}% → ${(m.share2025 * 100).toFixed(1)}%</li>`
+    )
+    .join("");
 
-  /* ---------------- Colour: lavender → lime blend (template) ---------------- */
-  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const LAV = hex("#8c7cff"),
-    LIME = hex("#c6e48b");
-  const mix = (t) => `rgb(${LAV.map((c, i) => Math.round(lerp(c, LIME[i], t))).join(",")})`;
-
-  /* ---------------- Radial: one spoke per year (template form) ---------------- */
-  function radial(svg, values, labelFirst, labelLast) {
-    const n = values.length,
-      max = Math.max(...values);
-    const r0 = 58,
-      R = 290,
-      step = (Math.PI * 2) / n,
-      gap = step * 0.18;
-    el("circle", { r: R, fill: "none", stroke: "#1d1d1d", "stroke-width": 1 }, svg);
-    el("circle", { r: r0 - 8, fill: "none", stroke: "#1d1d1d", "stroke-width": 1 }, svg);
-    const g = el("g", {}, svg);
-    const pol = (r, a) => `${(r * Math.cos(a)).toFixed(2)},${(r * Math.sin(a)).toFixed(2)}`;
-    const spokes = values.map((v, i) => ({
-      len: (R - r0) * (v / max), // linear: spoke length is proportional to TWh
-      a0: -Math.PI / 2 + i * step + gap / 2,
-      a1: -Math.PI / 2 + (i + 1) * step - gap / 2,
-      path: el("path", { fill: mix(i / (n - 1)) }, g),
-      last: -1,
-    }));
-    // Year labels for the first and last spoke, outside the ring
-    const lab = (i, text) => {
-      const a = (spokes[i].a0 + spokes[i].a1) / 2,
-        r = R + 18;
-      return el(
-        "text",
-        {
-          x: (r * Math.cos(a)).toFixed(1),
-          y: (r * Math.sin(a) + 5).toFixed(1),
-          "text-anchor": i === 0 ? "start" : "end",
-          class: "stage-muted",
-          opacity: 0,
-        },
-        svg
-      );
-    };
-    const l0 = lab(0),
-      l1 = lab(n - 1);
-    l0.textContent = labelFirst;
-    l1.textContent = labelLast;
-    return (f, spin = 0) => {
-      g.setAttribute("transform", `rotate(${spin.toFixed(2)})`);
-      const reach = f * (n + 6);
-      spokes.forEach((s, i) => {
-        const t = easeOut(clamp((reach - i) / 6));
-        if (Math.abs(t - s.last) < 0.002) return;
-        s.last = t;
-        const r = r0 + s.len * t;
-        s.path.setAttribute(
-          "d",
-          t <= 0
-            ? ""
-            : `M${pol(r0, s.a0)} L${pol(r, s.a0)} A${r},${r} 0 0 1 ${pol(r, s.a1)} L${pol(r0, s.a1)} A${r0},${r0} 0 0 0 ${pol(r0, s.a0)} Z`
-        );
-      });
-      const o = spin === 0 ? seg(f, 0.8, 1).toFixed(2) : 0;
-      l0.setAttribute("opacity", o);
-      l1.setAttribute("opacity", o);
-    };
-  }
-
-  /* ---------------- Unit dot grid (template form) ---------------- */
-  function dotGrid(svg, lavCount) {
-    let seed = 7;
-    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const cell = 60,
-      R = 25;
-    const dots = Array.from({ length: 100 }, (_, i) => {
-      const lav = i < lavCount;
-      const sx = 20 + rnd() * 560,
-        sy = lav ? 20 + rnd() * 380 : 420 + rnd() * 160;
-      return {
-        gx: (i % 10) * cell + cell / 2,
-        gy: Math.floor(i / 10) * cell + cell / 2,
-        sx,
-        sy,
-        size: 0.25 + rnd() * 0.75,
-        t: 0.02 + rnd() * 0.38,
-        c: el("circle", { r: 0, cx: sx, cy: sy, fill: lav ? "var(--lav)" : "var(--lime)" }, svg),
-      };
-    });
-    return (p) => {
-      const settle = easeInOut(seg(p, 0.5, 0.86));
-      dots.forEach((d) => {
-        const a = easeOut(seg(p, d.t, d.t + 0.12));
-        d.c.setAttribute("r", (R * lerp(d.size, 1, settle) * a).toFixed(2));
-        d.c.setAttribute("cx", lerp(d.sx, d.gx, settle).toFixed(1));
-        d.c.setAttribute("cy", lerp(d.sy, d.gy, settle).toFixed(1));
-      });
-    };
-  }
-
-  /* ---------------- Crossing share lines (new form, template palette) ---------------- */
-  function crossLines(svg) {
-    const W = 600,
+  /* ---------------- 01 Two currents ---------------- */
+  function currents(svg) {
+    const W = 900,
       H = 600,
-      m = { l: 40, r: 120, t: 60, b: 70 };
-    const lo = 0.15,
-      hi = 0.45;
-    const x = (i) => m.l + (i / (N - 1)) * (W - m.l - m.r);
-    const y = (v) => m.t + ((hi - v) / (hi - lo)) * (H - m.t - m.b);
-    [0.2, 0.3, 0.4].forEach((v) => {
-      el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "#1d1d1d" }, svg);
+      m = { l: 64, r: 120, t: 34, b: 34 };
+    const UP = 15000,
+      DOWN = 20000;
+    const k = (H - m.t - m.b) / (UP + DOWN);
+    const c = m.t + UP * k;
+    const x = (i) => m.l + 18 + (i / L) * (W - m.l - m.r - 36);
+    const yUp = (v) => c - v * k,
+      yDn = (v) => c + v * k;
+    // glow filter for endpoints
+    const defs = el("defs", {}, svg);
+    const f = el(
+      "filter",
+      { id: "cur-glow", x: "-200%", y: "-200%", width: "500%", height: "500%" },
+      defs
+    );
+    el("feGaussianBlur", { stdDeviation: "3.2" }, f);
+    // axis
+    el("text", { class: "t-label", x: m.l - 54, y: yUp(UP) + 4 }, svg, "TWh");
+    [5000, 10000].forEach((v) => {
+      el("line", { class: "g-rule", x1: m.l, x2: W - m.r, y1: yUp(v), y2: yUp(v) }, svg);
       el(
         "text",
-        { x: m.l - 6, y: y(v) + 5, "text-anchor": "end", class: "stage-muted" },
-        svg
-      ).textContent = Math.round(v * 100) + "%";
+        { class: "t-axis", x: m.l - 10, y: yUp(v) + 4, "text-anchor": "end" },
+        svg,
+        v / 1000 + "k"
+      );
     });
-    [0, N - 1].forEach(
-      (i) =>
-        (el(
-          "text",
-          { x: x(i), y: H - m.b + 28, "text-anchor": "middle", class: "stage-muted" },
-          svg
-        ).textContent = S.years[i])
+    [5000, 10000, 15000, 20000].forEach((v) => {
+      el("line", { class: "g-rule", x1: m.l, x2: W - m.r, y1: yDn(v), y2: yDn(v) }, svg);
+      el(
+        "text",
+        { class: "t-axis", x: m.l - 10, y: yDn(v) + 4, "text-anchor": "end" },
+        svg,
+        v / 1000 + "k"
+      );
+    });
+    el("line", { class: "g-center", x1: m.l, x2: W - m.r, y1: c, y2: c }, svg);
+    S.years.forEach((yr, i) => {
+      if (yr % 5 === 0)
+        el("text", { class: "t-year", x: x(i), y: c + 22, "text-anchor": "middle" }, svg, yr);
+    });
+
+    const band = (W - m.l - m.r - 36) / L;
+    // Deterministic wiggle: a slow sine whose phase depends on the year
+    const thread = (xc, y0, y1, amp, phase) => {
+      const pts = [];
+      for (let s = 0; s <= 24; s++) {
+        const t = s / 24;
+        pts.push(
+          `${(xc + Math.sin(phase + t * Math.PI * 1.6) * amp * Math.sin(Math.PI * t)).toFixed(1)},${lerp(y0, y1, t).toFixed(1)}`
+        );
+      }
+      return "M" + pts.join(" L");
+    };
+    const lens = (xc, y0, y1, w, j, phase) => {
+      const pts = [];
+      for (let s = 0; s <= 24; s++) {
+        const t = s / 24;
+        const spread = Math.sin(Math.PI * t) * w * (j / 3);
+        pts.push(
+          `${(xc + spread + Math.sin(phase + j + t * 5) * 1.5).toFixed(1)},${lerp(y0, y1, t).toFixed(1)}`
+        );
+      }
+      return "M" + pts.join(" L");
+    };
+    const years = S.years.map((yr, i) => {
+      const xc = x(i),
+        phase = i * 1.7;
+      const gUp = el("g", {}, svg),
+        gDn = el("g", {}, svg);
+      const wUp = band * 0.42 * (0.75 + 0.25 * Math.sin(i * 2.3)),
+        wDn = band * 0.42 * (0.75 + 0.25 * Math.cos(i * 1.9));
+      for (let j = -3; j <= 3; j++) {
+        if (j === 0) continue;
+        el("path", { class: "texture", d: lens(xc, c, yUp(S.clean[i]), wUp, j, phase) }, gUp);
+        el("path", { class: "texture", d: lens(xc, c, yDn(S.fossil[i]), wDn, j, phase + 1) }, gDn);
+      }
+      el("path", { class: "thread", d: thread(xc, c, yUp(S.clean[i]), 4, phase) }, gUp);
+      el("path", { class: "thread", d: thread(xc, c, yDn(S.fossil[i]), 4, phase + 2) }, gDn);
+      const last = i === L;
+      const r = last ? 5 : 3.2;
+      const haloU = el(
+        "circle",
+        { class: "endpoint-halo", r: r * 2.2, cx: xc, cy: c, filter: "url(#cur-glow)" },
+        svg
+      );
+      const dotU = el("circle", { class: "endpoint", r, cx: xc, cy: c }, svg);
+      const haloD = el(
+        "circle",
+        { class: "endpoint-halo", r: r * 2.2, cx: xc, cy: c, filter: "url(#cur-glow)" },
+        svg
+      );
+      const dotD = el("circle", { class: "endpoint", r, cx: xc, cy: c }, svg);
+      el("circle", { class: "mid-dot", r: 2, cx: xc, cy: c }, svg);
+      return { gUp, gDn, dotU, dotD, haloU, haloD, i, xc };
+    });
+    // End labels (reference)
+    const lx = x(L) + 16;
+    const endC = el("g", { opacity: 0 }, svg),
+      endF = el("g", { opacity: 0 }, svg);
+    el(
+      "line",
+      { class: "leader", x1: x(L) + 8, x2: lx + 10, y1: yUp(S.clean[L]), y2: yUp(S.clean[L]) },
+      endC
     );
-    const coalP = el(
-      "path",
-      {
-        fill: "none",
-        stroke: "var(--lime)",
-        "stroke-width": 5,
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-      },
-      svg
+    el("text", { class: "t-label", x: lx + 16, y: yUp(S.clean[L]) - 18 }, endC, "Clean");
+    el("text", { class: "t-value", x: lx + 16, y: yUp(S.clean[L]) + 10 }, endC, n0(S.clean[L]));
+    el(
+      "line",
+      { class: "leader", x1: x(L) + 8, x2: lx + 10, y1: yDn(S.fossil[L]), y2: yDn(S.fossil[L]) },
+      endF
     );
-    const renP = el(
-      "path",
-      {
-        fill: "none",
-        stroke: "var(--lav)",
-        "stroke-width": 5,
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-      },
-      svg
-    );
-    const coalL = el(
-      "text",
-      { class: "stage-value", fill: "var(--lime)", style: "fill: var(--lime)" },
-      svg
-    );
-    const renL = el("text", { class: "stage-value", style: "fill: var(--lav)" }, svg);
+    el("text", { class: "t-label", x: lx + 16, y: yDn(S.fossil[L]) - 18 }, endF, "Fossil");
+    el("text", { class: "t-value", x: lx + 16, y: yDn(S.fossil[L]) + 10 }, endF, n0(S.fossil[L]));
+
+    return (p) => {
+      const reach = p * (N + 5);
+      years.forEach((Y) => {
+        const t = easeOut(clamp((reach - Y.i) / 5));
+        const tf = `translate(0 ${c}) scale(1 ${Math.max(0.0001, t).toFixed(4)}) translate(0 ${-c})`;
+        Y.gUp.setAttribute("transform", tf);
+        Y.gDn.setAttribute("transform", tf);
+        const yu = lerp(c, yUp(S.clean[Y.i]), t),
+          yd = lerp(c, yDn(S.fossil[Y.i]), t);
+        Y.dotU.setAttribute("cy", yu.toFixed(1));
+        Y.haloU.setAttribute("cy", yu.toFixed(1));
+        Y.dotD.setAttribute("cy", yd.toFixed(1));
+        Y.haloD.setAttribute("cy", yd.toFixed(1));
+        const o = t > 0.02 ? 1 : 0;
+        Y.dotU.setAttribute("opacity", o);
+        Y.dotD.setAttribute("opacity", o);
+        Y.haloU.setAttribute("opacity", o * 0.9);
+        Y.haloD.setAttribute("opacity", o * 0.9);
+      });
+      const e = seg(p, 0.85, 1).toFixed(2);
+      endC.setAttribute("opacity", e);
+      endF.setAttribute("opacity", e);
+    };
+  }
+
+  /* ---------------- Two-series line chart (solid / dashed) ---------------- */
+  function twoLines(svg, { a, b, labelA, labelB, max, step, fmtAxis, fmtEnd }) {
+    const W = 800,
+      H = 560,
+      m = { l: 60, r: 170, t: 40, b: 50 };
+    const x = (i) => m.l + (i / L) * (W - m.l - m.r);
+    const y = (v) => m.t + (1 - v / max) * (H - m.t - m.b);
+    for (let v = 0; v <= max + 1e-9; v += step) {
+      el("line", { class: "g-rule", x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, svg);
+      el(
+        "text",
+        { class: "t-axis", x: m.l - 10, y: y(v) + 4, "text-anchor": "end" },
+        svg,
+        fmtAxis(v)
+      );
+    }
+    S.years.forEach((yr, i) => {
+      if (yr % 5 === 0)
+        el("text", { class: "t-year", x: x(i), y: H - m.b + 26, "text-anchor": "middle" }, svg, yr);
+    });
+    const pb = el("path", { class: "s-dash" }, svg),
+      pa = el("path", { class: "s-solid" }, svg);
     const ring = el(
       "circle",
-      {
-        r: 0,
-        cx: x(N - 1),
-        cy: y(S.renewShare[N - 1]),
-        fill: "none",
-        stroke: "#fff",
-        "stroke-width": 2,
-      },
+      { r: 0, cx: x(L), cy: y(a[L]), fill: "none", stroke: "var(--cur-ink)", "stroke-width": 1.5 },
       svg
     );
+    const dot = el("circle", { r: 0, cx: x(L), cy: y(a[L]), class: "endpoint", filter: "" }, svg);
+    const la = el("g", { opacity: 0 }, svg),
+      lb = el("g", { opacity: 0 }, svg);
+    const ya = y(a[L]),
+      yb = y(b[L]);
+    const sep = Math.abs(ya - yb) < 46 ? 23 : 0;
+    const yA = ya <= yb ? ya - sep : ya + sep,
+      yB = yb < ya ? yb - sep : yb + sep;
+    el("text", { class: "t-label", x: W - m.r + 18, y: yA - 8 }, la, labelA);
+    el("text", { class: "t-num", x: W - m.r + 18, y: yA + 12 }, la, fmtEnd(a[L]) + "  ——");
+    el("text", { class: "t-label", x: W - m.r + 18, y: yB - 8 }, lb, labelB);
+    el("text", { class: "t-num", x: W - m.r + 18, y: yB + 12 }, lb, fmtEnd(b[L]) + "  - - -");
     const path = (arr, upto) => {
-      const k = Math.floor(upto),
-        f = upto - k;
-      const pts = arr.slice(0, k + 1).map((v, i) => [x(i), y(v)]);
-      if (k < N - 1 && f > 0)
-        pts.push([lerp(x(k), x(k + 1), f), lerp(y(arr[k]), y(arr[k + 1]), f)]);
+      const kk = Math.floor(upto),
+        fr = upto - kk;
+      const pts = arr.slice(0, kk + 1).map((v, i) => [x(i), y(v)]);
+      if (kk < L && fr > 0)
+        pts.push([lerp(x(kk), x(kk + 1), fr), lerp(y(arr[kk]), y(arr[kk + 1]), fr)]);
       return pts.length
-        ? "M" + pts.map((p) => p.map((c) => c.toFixed(1)).join(",")).join(" L")
+        ? "M" + pts.map((q) => q.map((v) => v.toFixed(1)).join(",")).join(" L")
         : "";
     };
     return (p) => {
-      const upto = easeInOut(seg(p, 0.05, 0.8)) * (N - 1);
-      coalP.setAttribute("d", p > 0 ? path(S.coalShare, upto) : "");
-      renP.setAttribute("d", p > 0 ? path(S.renewShare, upto) : "");
-      const k = Math.min(N - 1, Math.round(upto));
-      const show = p > 0.05;
-      coalL.setAttribute("x", x(k) + 12);
-      coalL.setAttribute("y", y(S.coalShare[k]) + (k === N - 1 ? 18 : 6));
-      coalL.textContent = show ? `Coal ${(S.coalShare[k] * 100).toFixed(1)}%` : "";
-      renL.setAttribute("x", x(k) + 12);
-      renL.setAttribute("y", y(S.renewShare[k]) - (k === N - 1 ? 8 : -6));
-      renL.textContent = show ? `Renewables ${(S.renewShare[k] * 100).toFixed(1)}%` : "";
-      ring.setAttribute("r", (16 * easeOut(seg(p, 0.82, 0.95))).toFixed(1));
+      const upto = easeInOut(seg(p, 0.05, 0.8)) * L;
+      pa.setAttribute("d", p > 0 ? path(a, upto) : "");
+      pb.setAttribute("d", p > 0 ? path(b, upto) : "");
+      const e = seg(p, 0.8, 0.95);
+      la.setAttribute("opacity", e.toFixed(2));
+      lb.setAttribute("opacity", e.toFixed(2));
+      ring.setAttribute("r", (14 * easeOut(e)).toFixed(1));
+      dot.setAttribute("r", (4 * easeOut(e)).toFixed(1));
     };
   }
 
-  /* ---------------- Horizontal bars (TWh) ---------------- */
-  function hbars(svg, list) {
-    const top = 120,
-      left = 20,
-      right = 560,
-      rowH = 120;
-    const max = Math.max(...list.map((d) => d.value));
-    const w = (v) => ((right - left - 80) * v) / max;
-    const rows = list.map((d, i) => {
-      const y = top + i * rowH;
-      el("text", { class: "stage-label", x: left, y: y + 4 }, svg).textContent = d.name;
+  /* ---------------- 03 Change by source (source-toned bars) ---------------- */
+  function changeBarsReal(svg, list) {
+    const W = 800,
+      H = 560,
+      m = { l: 150, r: 110, t: 30, b: 30 };
+    const lo = Math.min(0, ...list.map((r) => r.d)),
+      hi = Math.max(0, ...list.map((r) => r.d));
+    const x = (v) => m.l + ((v - lo) / (hi - lo)) * (W - m.l - m.r);
+    const rh = (H - m.t - m.b) / list.length;
+    el("line", { class: "g-center", x1: x(0), x2: x(0), y1: m.t - 10, y2: H - m.b + 10 }, svg);
+    const bars = list.map((r, i) => {
+      const yy = m.t + i * rh;
+      el(
+        "text",
+        { class: "t-small", x: m.l - 14, y: yy + rh / 2 + 5, "text-anchor": "end" },
+        svg,
+        r.s
+      );
       const bar = el(
         "rect",
-        { x: left, y: y + 16, height: 44, rx: 4, width: 0, fill: d.color },
+        { y: yy + rh * 0.22, height: rh * 0.56, fill: srcColor(r.s), x: x(0), width: 0 },
         svg
       );
-      const val = el("text", { class: "stage-value", y: y + 46 }, svg);
-      return { d, bar, val, t0: 0.05 + i * 0.18 };
+      const val = el("text", { class: "t-num", y: yy + rh / 2 + 5 }, svg);
+      return { r, bar, val, t0: 0.05 + i * 0.05 };
     });
-    // coal reference line across all rows
-    const coal = list.find((d) => d.ref);
-    const refX = left + w(coal.value);
+    el(
+      "text",
+      { class: "t-label", x: m.l, y: H - 4 },
+      svg,
+      `TWh change, ${S.last - 1} → ${S.last}`
+    );
+    return (p) => {
+      bars.forEach((b) => {
+        const t = easeOut(seg(p, b.t0, b.t0 + 0.4));
+        const v = b.r.d * t;
+        const x0 = Math.min(x(0), x(v)),
+          w = Math.abs(x(v) - x(0));
+        b.bar.setAttribute("x", x0.toFixed(1));
+        b.bar.setAttribute("width", w.toFixed(1));
+        b.val.setAttribute("x", (b.r.d >= 0 ? x(v) + 8 : x(0) + 8).toFixed(1));
+        b.val.textContent = t > 0 ? (b.r.d >= 0 ? "+" : MINUS) + n0(Math.abs(v)) : "";
+      });
+    };
+  }
+
+  /* ---------------- 05 Mix bars, 2000 vs 2025 ---------------- */
+  function mixBars(svg) {
+    const W = 800,
+      H = 560,
+      m = { l: 90, r: 20 };
+    const order = [
+      "Coal",
+      "Gas",
+      "Other fossil",
+      "Nuclear",
+      "Hydro",
+      "Wind",
+      "Solar",
+      "Bioenergy",
+      "Other renewables",
+    ];
+    const byS = Object.fromEntries(S.mix.map((mm) => [mm.source, mm]));
+    const rows = [
+      { label: String(S.first), key: "share2000", y: 200 },
+      { label: String(S.last), key: "share2025", y: 300 },
+    ];
+    const segs = [];
+    rows.forEach((r) => {
+      el("text", { class: "t-value", x: 0, y: r.y + 30, style: "font-size:20px" }, svg, r.label);
+      let acc = 0;
+      order.forEach((s, j) => {
+        const v = byS[s][r.key];
+        const x0 = m.l + acc * (W - m.l - m.r),
+          w = v * (W - m.l - m.r);
+        const rect = el("rect", { x: x0, y: r.y, width: 0, height: 44, fill: srcColor(s) }, svg);
+        rect.append(el("title", {}, null, `${s} ${r.label}: ${(v * 100).toFixed(1)}%`));
+        segs.push({
+          rect,
+          w: Math.max(0, w - 1.5),
+          t0: (r.key === "share2025" ? 0.35 : 0.05) + j * 0.025,
+        });
+        acc += v;
+      });
+    });
+    el("text", { class: "t-label", x: m.l, y: 420 }, svg, "Share of world generation, by source");
+    return (p) => {
+      segs.forEach((sg) =>
+        sg.rect.setAttribute("width", (sg.w * easeOut(seg(p, sg.t0, sg.t0 + 0.3))).toFixed(1))
+      );
+    };
+  }
+
+  /* ---------------- 06 Margin: renewables vs coal vs renewables without hydro ---------------- */
+  function marginBars(svg) {
+    const W = 800,
+      m = { l: 0, r: 150 };
+    const list = [
+      { name: "Renewables", v: S.renew, fill: "var(--ser-1)" },
+      { name: "Coal", v: S.coal, fill: "var(--ser-2)" },
+      { name: "Renewables without hydro", v: S.renew - S.hydro, fill: "var(--ser-1)", op: 0.35 },
+    ];
+    const max = Math.max(...list.map((d) => d.v));
+    const w = (v) => (v / max) * (W - m.l - m.r);
+    const rows = list.map((d, i) => {
+      const y = 110 + i * 130;
+      el("text", { class: "t-label", x: 0, y }, svg, d.name);
+      const bar = el(
+        "rect",
+        { x: 0, y: y + 14, height: 46, width: 0, fill: d.fill, "fill-opacity": d.op || 1 },
+        svg
+      );
+      const val = el("text", { class: "t-num", y: y + 44 }, svg);
+      return { d, bar, val, t0: 0.05 + i * 0.16 };
+    });
     const ref = el(
       "line",
       {
-        x1: refX,
-        x2: refX,
-        y1: top - 10,
-        y2: top + rowH * list.length - 40,
-        stroke: "#fff",
-        "stroke-dasharray": "4 5",
+        x1: w(S.coal),
+        x2: w(S.coal),
+        y1: 90,
+        y2: 110 + 3 * 130 - 40,
+        stroke: "var(--cur-ink)",
+        "stroke-dasharray": "1 4",
         opacity: 0,
       },
       svg
+    );
+    el(
+      "text",
+      { class: "t-axis", x: 0, y: 545 },
+      svg,
+      `TWh, ${S.last}. Lead over coal: ${n0(S.margin)} TWh.`
     );
     return (p) => {
       rows.forEach((r) => {
         const t = easeOut(seg(p, r.t0, r.t0 + 0.35));
-        const ww = w(r.d.value) * t;
-        r.bar.setAttribute("width", Math.max(0, ww).toFixed(1));
-        r.val.setAttribute("x", (left + ww + 10).toFixed(1));
-        r.val.textContent = t > 0 ? n0(r.d.value * t) + " TWh" : "";
+        r.bar.setAttribute("width", (w(r.d.v) * t).toFixed(1));
+        r.val.setAttribute("x", (w(r.d.v) * t + 12).toFixed(1));
+        r.val.textContent = t > 0 ? n0(r.d.v * t) + " TWh" : "";
       });
-      ref.setAttribute("opacity", (0.6 * seg(p, 0.75, 0.9)).toFixed(2));
+      ref.setAttribute("opacity", (0.7 * seg(p, 0.7, 0.9)).toFixed(2));
     };
-  }
-
-  /* ---------------- Mini line chart (template form) ---------------- */
-  function miniLine(svg, pts) {
-    const W = 320,
-      H = 150,
-      m = { l: 14, r: 14, t: 30, b: 24 };
-    const vals = pts.map((p) => p.v),
-      lo = Math.min(...vals, 0),
-      hi = Math.max(...vals, 0);
-    const x = (i) => m.l + (i * (W - m.l - m.r)) / (pts.length - 1);
-    const y = (v) => m.t + ((hi - v) / (hi - lo || 1)) * (H - m.t - m.b);
-    const zero = el(
-      "line",
-      {
-        x1: m.l,
-        x2: W - m.r,
-        y1: y(0),
-        y2: y(0),
-        stroke: "#555",
-        "stroke-dasharray": "3 4",
-        opacity: 0,
-      },
-      svg
-    );
-    const P = pts.map((p, i) => [x(i), y(p.v)]);
-    const path = el("path", { class: "ln" }, svg);
-    const marks = pts.map((p, i) => {
-      const gg = el("g", { opacity: 0 }, svg);
-      el("circle", { class: "pt", cx: P[i][0], cy: P[i][1], r: 4.5 }, gg);
-      el("text", { class: "val", x: P[i][0], y: P[i][1] - 10 }, gg).textContent = p.t;
-      el("text", { class: "yr", x: P[i][0], y: H - 4 }, gg).textContent = p.x;
-      return gg;
-    });
-    return (f) => {
-      zero.setAttribute("opacity", f > 0 ? 1 : 0);
-      const reach = f * (pts.length - 1),
-        k = Math.floor(reach),
-        frac = reach - k;
-      const drawn = P.slice(0, k + 1);
-      if (k < P.length - 1 && frac > 0)
-        drawn.push([lerp(P[k][0], P[k + 1][0], frac), lerp(P[k][1], P[k + 1][1], frac)]);
-      path.setAttribute("d", f <= 0 ? "" : `M${drawn.map((q) => q.join(",")).join(" L")}`);
-      marks.forEach((gg, i) =>
-        gg.setAttribute("opacity", f <= 0 ? 0 : clamp((reach - i) * 3 + 1).toFixed(2))
-      );
-    };
-  }
-
-  /* ---------------- Word-by-word statement reveal (template) ---------------- */
-  function splitWords(node) {
-    const words = [];
-    const walk = (n) => {
-      [...n.childNodes].forEach((c) => {
-        if (c.nodeType === 1) {
-          if (!c.classList.contains("sr-only")) walk(c);
-          return;
-        }
-        if (c.nodeType !== 3 || !c.textContent.trim()) return;
-        const frag = document.createDocumentFragment();
-        c.textContent.split(/(\s+)/).forEach((part) => {
-          if (!part) return;
-          if (/^\s+$/.test(part)) return frag.append(part);
-          const s = document.createElement("span");
-          s.className = "sw";
-          s.textContent = part;
-          words.push(s);
-          frag.append(s);
-        });
-        c.replaceWith(frag);
-      });
-    };
-    walk(node);
-    return words;
   }
 
   /* ---------------- Insights ---------------- */
-  const heroDraw = radial($("#radial"), S.total, String(S.first), String(S.last));
-  const dotsDraw = dotGrid($("#dots"), facts.solarPct);
-  const solarNum = $("#solarNum"),
-    growthWords = splitWords($("#t-growth"));
-  const crossDraw = crossLines($("#cross"));
+  const drawCurrents = currents($("#currents"));
+  const drawCross = twoLines($("#cross"), {
+    a: S.renewShare.map((v) => v * 100),
+    b: S.coalShare.map((v) => v * 100),
+    labelA: "Renewables",
+    labelB: "Coal",
+    max: 50,
+    step: 10,
+    fmtAxis: (v) => v + "%",
+    fmtEnd: (v) => v.toFixed(1) + "%",
+  });
+  const drawChange = changeBarsReal(
+    $("#change"),
+    S.change.slice().sort((p, q) => q.d - p.d)
+  );
+  const drawSolar = twoLines($("#solarWind"), {
+    a: S.solar,
+    b: S.wind,
+    labelA: "Solar",
+    labelB: "Wind",
+    max: 3000,
+    step: 1000,
+    fmtAxis: (v) => (v ? v / 1000 + "k" : "0"),
+    fmtEnd: (v) => n0(v) + " TWh",
+  });
+  const drawMix = mixBars($("#mix"));
+  const drawMargin = marginBars($("#margin"));
   const renewNum = $("#renewNum"),
-    crossWords = splitWords($("#t-cross"));
-  const barsDraw = hbars($("#bars"), [
-    { name: "Renewables", value: S.renew, color: "var(--lav)" },
-    { name: "Coal", value: S.coal, color: "var(--lime)", ref: true },
-    { name: "Renewables without hydro", value: S.renew - S.hydro, color: "var(--lav)" },
-  ]);
-  $("#bars").setAttribute(
-    "aria-label",
-    `Bars, ${S.last} TWh: renewables ${n0(S.renew)}, coal ${n0(S.coal)}, renewables without hydro ${n0(S.renew - S.hydro)}.`
-  );
-  const gapLine = miniLine(
-    $("#gapLine"),
-    S.gapPts.map((g) => ({
-      v: g.pts,
-      t: (g.pts > 0 ? "+" : MINUS) + Math.abs(g.pts).toFixed(1),
-      x: String(g.year),
-    }))
-  );
-  const thinPanel = $("#thinPanel"),
-    thinNum = $("#thinNum");
-  const solarDraw = radial($("#radialSolar"), S.solar, String(S.first), String(S.last));
-  const solarX = $("#solarX");
+    cleanNum = $("#cleanNum"),
+    solarNum = $("#solarNum"),
+    gapNum = $("#gapNum");
 
   const insights = [
-    { ms: 2200, render: (t) => heroDraw(t, 0) },
+    { ms: 2800, render: (t) => drawCurrents(t) },
     {
       ms: 2600,
       render: (t) => {
-        dotsDraw(t);
-        solarNum.textContent = Math.round(facts.solarPct * easeOut(seg(t, 0.04, 0.88)));
-        const lit = seg(t, 0, 0.6) * growthWords.length;
-        growthWords.forEach((w, i) => w.classList.toggle("dim", i >= lit));
-      },
-    },
-    {
-      ms: 2800,
-      render: (t) => {
-        crossDraw(t);
+        drawCross(t);
         renewNum.textContent = lerp(
           S.renewShare[0] * 100,
-          facts.renew,
+          S.renewShare[L] * 100,
           easeInOut(seg(t, 0.05, 0.8))
         ).toFixed(1);
-        const lit = seg(t, 0, 0.6) * crossWords.length;
-        crossWords.forEach((w, i) => w.classList.toggle("dim", i >= lit));
-      },
-    },
-    { ms: 2400, render: (t) => barsDraw(t) },
-    {
-      ms: 2400,
-      render: (t) => {
-        gapLine(easeInOut(seg(t, 0.05, 0.8)));
-        thinPanel.style.setProperty("--reveal", easeOut(seg(t, 0, 0.3)).toFixed(3));
-        thinPanel.style.setProperty("--glow", easeOut(seg(t, 0.25, 0.85)).toFixed(3));
-        thinNum.textContent = (facts.kFlip * easeOut(seg(t, 0.15, 0.9))).toFixed(2);
       },
     },
     {
       ms: 2400,
       render: (t) => {
-        const f = easeOut(t);
-        solarDraw(f, 0);
-        solarX.textContent = String(Math.round(lerp(1, facts.solarX, f)));
+        drawChange(t);
+        cleanNum.textContent = n0(S.dClean * easeOut(seg(t, 0.05, 0.85)));
+      },
+    },
+    {
+      ms: 2600,
+      render: (t) => {
+        drawSolar(t);
+        solarNum.textContent = n0(lerp(S.solar[0], S.solar[L], easeInOut(seg(t, 0.05, 0.8))));
+      },
+    },
+    { ms: 2400, render: (t) => drawMix(t) },
+    {
+      ms: 2400,
+      render: (t) => {
+        drawMargin(t);
+        gapNum.textContent = (S.gapLast * easeOut(seg(t, 0.1, 0.85))).toFixed(1);
       },
     },
   ];
@@ -451,6 +512,39 @@
   let active = -1,
     raf = 0;
   const resetTimers = new Map();
+
+  /* ---------------- scroll-craft style layer (site/shared/craft.js) ----------------
+     Kinetic lines on display type, cue fades on supporting copy, a clip-path wipe on each scene's
+     chart (iris once, then alternating directions: never the same wipe twice in a row). */
+  const C = window.Craft;
+  if (C && C.motion) document.documentElement.classList.add("cr-on"); // enables the CSS wipe start states
+  const WIPES = ["iris", "left", "up", "right", "down", "left"];
+  const craft = steps.map((st, i) => ({
+    kin: [...st.querySelectorAll(".display, .big, .statement, .lede")],
+    cue: [...st.querySelectorAll(".kicker-num, .note, .meta-row, .mix-legend, .links")],
+    stage: items[i] && items[i].firstElementChild,
+  }));
+  craft.forEach((c, i) => c.stage && c.stage.setAttribute("data-cr-reveal", WIPES[i]));
+  let craftReady = false;
+  function craftStep(i, t) {
+    const c = craft[i];
+    if (!C || !c) return;
+    if (c.stage) c.stage.style.setProperty("--cr-t", C.smooth(seg(t, 0, 0.5)).toFixed(3));
+    c.cue.forEach((el, k) => C.cue(el, t, 0.22 + k * 0.06, 1, 0.45));
+    if (craftReady) c.kin.forEach((el, k) => C.playLines(el, seg(t, k * 0.08, 0.6 + k * 0.08)));
+  }
+  insights.forEach((ins, i) => {
+    const base = ins.render;
+    ins.render = (t) => { base(t); craftStep(i, t); };
+  });
+  // Split into lines only once the web font has loaded, so line breaks are final
+  if (C) {
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+      craft.forEach((c) => c.kin.forEach((el) => C.splitLines(el)));
+      craftReady = true;
+      craft.forEach((c, i) => c.kin.forEach((el) => C.playLines(el, i === active || !motion ? 1 : 0)));
+    });
+  }
   insights.forEach((ins) => ins.render(motion ? 0 : 1));
   function play(i) {
     cancelAnimationFrame(raf);
@@ -467,8 +561,8 @@
   }
   function activate(i) {
     if (i === active || i < 0 || i >= insights.length) return;
-    const prev = active,
-      down = i > prev;
+    const prevI = active,
+      down = i > prevI;
     active = i;
     steps.forEach((s, k) => s.classList.toggle("is-active", k === i));
     items.forEach((it, k) => {
@@ -476,15 +570,15 @@
       it.classList.toggle("is-active", k === i);
     });
     clearTimeout(resetTimers.get(i));
-    if (prev >= 0) {
-      const out = items[prev];
+    if (prevI >= 0) {
+      const out = items[prevI];
       out.classList.add(down ? "leave-up" : "leave-down");
-      clearTimeout(resetTimers.get(prev));
+      clearTimeout(resetTimers.get(prevI));
       resetTimers.set(
-        prev,
+        prevI,
         setTimeout(() => {
           out.classList.remove("leave-up", "leave-down");
-          if (active !== prev && motion) insights[prev].render(0);
+          if (active !== prevI && motion) insights[prevI].render(0);
         }, 950)
       );
     }
@@ -587,7 +681,6 @@
     e.preventDefault();
     if (!locked) go(dir);
   });
-
   const io = new IntersectionObserver(
     (entries) =>
       entries.forEach((e) => {
