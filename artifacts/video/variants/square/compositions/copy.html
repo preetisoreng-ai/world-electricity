@@ -195,6 +195,8 @@
     /* Landscape: copy on the left, chart on the right; only the end card swaps (copy 55–86% of the width) */
     #root .blk.alt { left: 40cqw; right: -40cqw; }
     @container (aspect-ratio < 1.3) { #root .blk.alt { left: 0; right: 0; } }
+    /* Editorial accent: a hairline drawn under each key value as it lands */
+    #root .accent { display: block; width: 5.5cqw; min-width: 64px; height: 3px; background: var(--cur-ink); transform-origin: 0 50%; margin: 0.2em 0 0.5em; }
     /* Kinetic lines (site craft.css): each line rises from behind its own mask */
     #root .cr-line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
     #root .cr-line__i { display: block; }
@@ -301,11 +303,24 @@
           return inner;
         });
       }
+      // accent hairline after each key value; appended after the lines are split
       const parts = blocks.map((b) => ({
         kin: Array.from(b.querySelectorAll(".title, .dek, .val, .line")).map(splitLines),
         cue: Array.from(b.querySelectorAll(".meta, .lab, .note, .site")),
       }));
+      blocks.forEach((b) => {
+        const v = b.querySelector(".val");
+        if (v) {
+          const a = document.createElement("span");
+          a.className = "accent";
+          v.after(a);
+        }
+      });
       const tl = gsap.timeline({ paused: true });
+      blocks.forEach((b) => {
+        const a = b.querySelector(".accent");
+        if (a) tl.set(a, { scaleX: 0 }, 0);
+      });
       const IN = 1.1; // the site's reveal window
       function enter(i, t0) {
         const P = parts[i];
@@ -317,6 +332,8 @@
             tl.fromTo(ln, { yPercent: 135 }, { yPercent: 0, duration: 0.38 * IN + 0.25, ease: "power2.out", immediateRender: false }, start);
           });
         });
+        const acc = blocks[i].querySelector(".accent");
+        if (acc) tl.fromTo(acc, { scaleX: 0 }, { scaleX: 1, transformOrigin: "0% 50%", duration: 0.8, ease: "expo.out", immediateRender: false }, t0 + 0.75);
         P.cue.forEach((el, k) => {
           tl.fromTo(el, { opacity: 0, y: "2.4vh" }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, t0 + 0.22 * IN + k * 0.06 * IN);
         });
@@ -325,6 +342,8 @@
         const P = parts[i];
         P.kin.flat().forEach((ln, j) => tl.to(ln, { yPercent: -135, duration: 0.5, ease: "sine.in" }, t0 + j * 0.03));
         P.cue.forEach((el) => tl.to(el, { opacity: 0, duration: 0.45, ease: "sine.in" }, t0));
+        const acc = blocks[i].querySelector(".accent");
+        if (acc) tl.to(acc, { scaleX: 0, transformOrigin: "100% 50%", duration: 0.45, ease: "sine.in" }, t0);
         tl.set(blocks[i], { opacity: 0 }, t0 + 0.8);
       }
       // Start states: every block hidden, every line below its mask

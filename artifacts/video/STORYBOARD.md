@@ -43,3 +43,11 @@ every scene change sits on the 1.2 s grid (two beats). Whooshes (bundled SFX, tw
 - Changes 2–5: seamless staggered morph (1.6 s, sine.inOut, marks ripple left → right); the next chart arrives complete.
 - End card: the margin bars morph into the centreline, then the threads grow like the opening.
 - Music: soft piano (AngeloRizzo, CC0), −19 LUFS.
+
+## Revision v4 (2026-11-08): transitions refined, story moments added
+- Change 1: rib fold ripples 2000 → 2025 while the dotted edges arc into the two trend lines (top → coal, bottom → renewables), 1.5 s.
+- Change 5: margin bars retract into strokes that glide into the centreline; the closing chart grows exactly like the opening.
+- Story moments (springs from Motion, pre-sampled in assets/springs.js): comet along renewables to the 2025 crossing + ripple and tick;
+  comet along solar to where it passes wind + ripple; a "+95 TWh" bracket springs in over the margin gap.
+- Camera: 2.5% push-in during each hold, released before every transition (transitions run at a steady scale).
+- Accent rule draws under each key value.

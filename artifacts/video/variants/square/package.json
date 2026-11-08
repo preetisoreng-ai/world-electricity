@@ -7,5 +7,8 @@
     "check": "npx --yes hyperframes@0.9.12 check",
     "render": "npx --yes hyperframes@0.9.12 render",
     "publish": "npx --yes hyperframes@0.9.12 publish"
+  },
+  "dependencies": {
+    "motion": "^14.10.1"
   }
 }
