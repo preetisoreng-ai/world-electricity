@@ -447,7 +447,11 @@
       const gGrow = (t, T0) => 1; // bars arrive complete
       // Opening = the data story's first frame: each year's threads grow out of the centreline,
       // sweeping 2000 → 2025 (reach = p·(N+5), each year easing out over 5 years of the sweep)
-      const OPEN = [0.3, 2.7];
+      // Frame 0 = the composed cover (held 0-0.6 s), it folds to the centreline (0.6-1.15 s),
+      // then the data-story build-in plays (1.25-3.65 s).
+      const OPEN = [1.25, 3.65];
+      const COVER_HOLD = 0.6,
+        COVER_FOLD = 1.15;
       const FOLD = 1.0; // a chart folds into the next chart's baseline, in place, then the next chart grows
       function grow(G, p) {
         const reach = p * (N + 5);
@@ -466,7 +470,8 @@
         out.tex = (G.tex == null ? 1 : G.tex) * p;
         return out;
       }
-      const openP = (t) => seg(t, OPEN[0], OPEN[1]);
+      const openP = (t) =>
+        t < COVER_HOLD ? 1 : t < COVER_FOLD ? 1 - E3(seg(t, COVER_HOLD, COVER_FOLD)) : seg(t, OPEN[0], OPEN[1]);
       const endP = (t) => seg(t, T[4] + 0.55, T[4] + 0.55 + (OPEN[1] - OPEN[0])); // the opening's 2.4 s sweep // same 2.4 s sweep as the opening
       const holdPose = [
         (t) => grow(fishHome(t), openP(t)),

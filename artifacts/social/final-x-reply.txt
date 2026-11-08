@@ -1,0 +1,2 @@
+Made with public data + my AI framework (analysis → pressure test → dashboard → data story), human sign-off at every step. Build time: 2 weeks before AI, 40 hrs with AI tools, 3 hrs with the framework; data-dependent.
+preetisoreng.com · preetisoreng-ai.github.io/world-electricity/

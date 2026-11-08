@@ -352,7 +352,14 @@
         P.kin.flat().forEach((ln) => tl.set(ln, { yPercent: 135 }, 0));
         P.cue.forEach((el) => tl.set(el, { opacity: 0 }, 0));
       });
-      enter(0, 0.2);
+      // Frame 0 = composed cover: the opening block starts fully visible, folds out at 0.6 s,
+      // then rises back in with the build-in (as on the data story page).
+      tl.set(blocks[0], { opacity: 1 }, 0);
+      parts[0].kin.flat().forEach((ln) => tl.set(ln, { yPercent: 0 }, 0));
+      parts[0].cue.forEach((el) => tl.set(el, { opacity: 1, y: 0 }, 0));
+      parts[0].kin.flat().forEach((ln, j) => tl.to(ln, { yPercent: -135, duration: 0.45, ease: "sine.in" }, 0.6 + j * 0.02));
+      parts[0].cue.forEach((el) => tl.to(el, { opacity: 0, duration: 0.4, ease: "sine.in" }, 0.6));
+      enter(0, 1.25);
       T.forEach((t0, i) => {
         leave(i, t0);
         enter(i + 1, t0 + (i === T.length - 1 ? 0.6 : i === 0 ? 0.7 : 0.8)); // closing title once the strokes have cleared the right // the new copy rises as the morph settles (end card a little earlier, to be read) // the copy arrives with the fish (end card a little earlier, to be read)

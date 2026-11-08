@@ -7,7 +7,7 @@
     "instagram": {
       "type": "carousel",
       "media": [
-        "../video/renders/video-4x5.mp4",
+        "media/video-4x5.mp4",
         "../infographic/infographic-4x5.png",
         "about-flowchart.png"
       ],
@@ -15,7 +15,7 @@
       "intro": false,
       "hashtags": "#Electricity #EnergyTransition #Renewables #DataVisualization #DataStory #ClimateData #Solar",
       "cover": "covers/cover-4x5.jpg",
-      "cover_at": 3.0,
+      "cover_at": 0,
       "story": {
         "media": "story/story-1-video-9x16.mp4",
         "cover": "covers/cover-9x16.jpg",
@@ -25,15 +25,15 @@
     "x": {
       "type": "post",
       "media": [
-        "../video/renders/video-16x9.mp4",
+        "media/video-16x9.mp4",
         "about-flowchart.png"
       ],
       "caption_file": "caption-x.txt",
       "reply_file": "about-x.txt",
       "max_chars": 280,
       "cover": "covers/cover-16x9.jpg",
-      "cover_at": 3.0,
-      "cover_note": "X has no cover control: the film opens with the title and chart building in (0–2.7 s), as on the data story page."
+      "cover_at": 0,
+      "cover_note": "X has no cover control: frame 0 is the composed cover (title, two-currents chart, CLEAN 13,507 / FOSSIL 18,418)."
     },
     "linkedin": {
       "type": "post",
@@ -47,7 +47,7 @@
       "caption_file": "caption-linkedin.txt",
       "hashtags": "#EnergyTransition #Renewables #DataVisualization #DataStorytelling #Electricity",
       "cover": "covers/cover-1x1.jpg",
-      "cover_at": 3.0
+      "cover_at": 0
     }
   },
   "about": {
@@ -114,5 +114,6 @@
     ],
     "times_note": "Times depend on the quantity and quality of the data; AI competency and human approval may affect time."
   },
-  "cover_note": "Covers are the 3.0 s frame of each video: the opening fully composed (title, dek, two-currents chart, CLEAN 13,507 / FOSSIL 18,418). The opening builds in like the data story's first screen, so frame 0 is not used (reviewer direction, 2026-11-06)."
+  "cover_note": "Every cover is the video's first frame: the opening fully composed. It holds 0.6 s, folds to the centreline and the data-story build-in plays.",
+  "upload_note": "media/video-{16x9,4x5}.mp4 are ≤10 MB upload copies of ../video/renders (same frames, 1.55 Mb/s) for the browser upload limit."
 }

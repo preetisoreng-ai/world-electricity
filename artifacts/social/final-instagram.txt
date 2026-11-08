@@ -1,0 +1,28 @@
+About this project
+The world electricity series is an independent data-visualisation project built entirely from public data: Ember's yearly electricity generation data, World, all sources, 2000 to 2025. Every number can be reproduced from the published source.
+
+How it was made
+I built it with my own approval-gated AI framework. A public dataset goes in; four reviewed artifacts come out, and a person approves each stage before the next one starts. The intro video, infographic and these posts come out of the same workflow.
+
+① Public dataset in: Ember yearly generation, 2000–2025
+   ↓ profile + context
+② Original analysis: strongest defensible story
+   ↓ human review + approval
+③ Pressure-tested deep-dive: checks claims, limits
+   ↓ human review + approval
+④ Dashboard: validated measures only
+   ↓ human review + approval
+⑤ Data story web app: "current" design language, live on GitHub
+   ↓ final approval
+⑥ /artifact + /post-social: video + infographic, every format
+
+Time to build this level of work
+Before AI: 2 weeks
+With AI tools: 40 hrs
+With the AI framework: 3 hrs
+(Times depend on the quantity and quality of the data; AI competency and human approval may affect time.)
+
+Website: https://preetisoreng.com
+Live web app: https://preetisoreng-ai.github.io/world-electricity/
+
+#Electricity #EnergyTransition #Renewables #DataVisualization #DataStory #ClimateData #Solar
